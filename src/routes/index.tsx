@@ -65,21 +65,21 @@ function Home() {
         </div>
         <div className="menu-card text-center">
           <p className="tracking-widget text-accent">Address</p>
-          <p className="mt-3 text-sm text-muted-foreground">Bole, Addis Ababa</p>
-          <p className="text-sm text-muted-foreground">Ethiopia</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Ararat-Kara Road, Wesen area, Yeka sub-city, Addis Ababa
+          </p>
+          <p className="text-sm text-muted-foreground">Between Megenagna and Wesen</p>
+          <p className="mt-1 text-sm text-muted-foreground">Plus code: 2RHP+VCW</p>
         </div>
         <div className="menu-card text-center">
           <p className="tracking-widget text-accent">Contact</p>
-          <p className="mt-3 text-sm text-muted-foreground">{PHONE}</p>
-          <p className="text-sm text-muted-foreground">hello@company.com.et</p>
+          <a href={`tel:${PHONE}`} className="mt-3 block text-sm text-muted-foreground">
+            091 160 91 57
+          </a>
         </div>
       </section>
 
-      <footer className="border-t border-border py-6 text-center">
-        <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-          © {new Date().getFullYear()} Melala Cafe &amp; Restaurant
-        </p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
