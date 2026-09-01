@@ -39,9 +39,53 @@ export function MenuSectionCard({ section }: { section: MenuSectionType }) {
   );
 }
 
+export function BrandLogo({ className = "w-32 sm:w-40" }: { className?: string }) {
+  return (
+    <img
+      src={logoAsset.url}
+      alt="Melala Coffee logo"
+      className={`mx-auto h-auto ${className}`}
+      width={512}
+      height={512}
+    />
+  );
+}
+
+export function SiteFooter() {
+  return (
+    <footer className="mt-12 border-t border-border py-8 text-center">
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        Ararat-Kara Road, Wesen area, Yeka sub-city, Addis Ababa, Ethiopia
+        <br />
+        Between Megenagna and Wesen · Plus code: 2RHP+VCW
+      </p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        <a href="tel:+251911609157" className="transition-colors hover:text-primary">
+          091 160 91 57
+        </a>
+      </p>
+      <p className="mt-4 text-xs tracking-[0.2em] text-muted-foreground uppercase">
+        © {new Date().getFullYear()} Melala Cafe &amp; Restaurant
+      </p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Developed by{" "}
+        <a
+          href="https://t.me/cloud_xii"
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary transition-colors hover:underline"
+        >
+          cloud_xii
+        </a>
+      </p>
+    </footer>
+  );
+}
+
 export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <header className="pt-14 pb-4 text-center sm:pt-20">
+      <BrandLogo className="mb-5 w-24 sm:w-28" />
       <p className="tracking-widget text-accent">{eyebrow}</p>
       <h1 className="display-title mt-3">{title}</h1>
       <div className="mx-auto mt-5 h-px w-24 bg-border" />
