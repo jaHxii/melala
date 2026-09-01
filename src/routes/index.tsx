@@ -29,6 +29,7 @@ function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-5 sm:px-6">
       <section className="flex flex-1 flex-col items-center justify-center py-20 text-center">
+        <BrandLogo className="mb-8 w-44 sm:w-56" />
         <p className="tracking-widget text-accent">Est. Addis Ababa</p>
         <h1 className="display-title mt-5">
           Melala
