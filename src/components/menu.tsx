@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import logoAsset from "@/assets/logo.png.asset.json";
 import type { MenuSection as MenuSectionType, MenuItem as MenuItemType } from "@/data/cafeMenu";
 
 export function SectionBadge({ label, local }: { label: string; local?: string | undefined }) {
