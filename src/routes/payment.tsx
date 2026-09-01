@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { paymentMethods } from "@/data/paymentMethods";
 import { MenuHeader, SectionBadge, SiteFooter } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
+import { useBlockBack } from "@/hooks/use-block-back";
 
 export const Route = createFileRoute("/payment")({
   head: () => ({
@@ -27,10 +27,7 @@ export const Route = createFileRoute("/payment")({
 
 function PaymentPage() {
   const { t } = useLanguage();
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, []);
+  useBlockBack();
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 pb-20 sm:px-6">

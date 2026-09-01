@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { restaurantMenu } from "@/data/restaurantMenu";
 import { MenuGrid, MenuHeader, PaymentBar, SiteFooter } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
+import { useBlockBack } from "@/hooks/use-block-back";
 
 export const Route = createFileRoute("/restaurant")({
   head: () => ({
@@ -31,10 +31,7 @@ export const Route = createFileRoute("/restaurant")({
 
 function RestaurantMenuPage() {
   const { t } = useLanguage();
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }, []);
+  useBlockBack();
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 sm:px-6">
