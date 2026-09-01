@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { MenuSection as MenuSectionType, MenuItem as MenuItemType } from "@/data/cafeMenu";
 
-export function SectionBadge({ label, local }: { label: string; local?: string }) {
+export function SectionBadge({ label, local }: { label: string; local?: string | undefined }) {
   return (
     <span className="badge-pill">
       {local ? <span className="badge-local">{local}&nbsp;/&nbsp;</span> : null}
