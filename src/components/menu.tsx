@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/logo.png.asset.json";
 import type { MenuSection as MenuSectionType, MenuItem as MenuItemType } from "@/data/cafeMenu";
+import { useInView } from "@/hooks/use-in-view";
+import { useLanguage } from "@/lib/language";
 
 export function SectionBadge({ label, local }: { label: string; local?: string | undefined }) {
   return (
@@ -26,12 +27,17 @@ export function MenuItemRow({ item }: { item: MenuItemType }) {
 }
 
 export function MenuSectionCard({ section }: { section: MenuSectionType }) {
+  const { ref, isInView } = useInView({ threshold: 0.05 });
+
   return (
-    <section className="menu-card break-inside-avoid">
+    <section
+      ref={ref}
+      className={`menu-card break-inside-avoid reveal ${isInView ? "visible" : ""}`}
+    >
       <div className="-mt-8 mb-6 flex justify-center">
         <SectionBadge label={section.category} local={section.local} />
       </div>
-      <ul className="space-y-5">
+      <ul className="space-y-5" aria-label={`${section.category} menu items`}>
         {section.items.map((item) => (
           <MenuItemRow key={item.name} item={item} />
         ))}
@@ -42,29 +48,23 @@ export function MenuSectionCard({ section }: { section: MenuSectionType }) {
 
 export function BrandLogo({ className = "w-32 sm:w-40" }: { className?: string }) {
   return (
-    <img
-      src={logoAsset.url}
-      alt="Melala Coffee logo"
-      className={`mx-auto h-auto ${className}`}
-      width={512}
-      height={512}
-    />
+    <picture>
+      <source srcSet="/logo.webp" type="image/webp" />
+      <img
+        src="/logo.png"
+        alt="Melala Coffee logo"
+        className={`mx-auto h-auto ${className}`}
+        width={512}
+        height={512}
+        fetchPriority="high"
+      />
+    </picture>
   );
 }
 
 export function SiteFooter() {
   return (
-    <footer className="mt-12 border-t border-border py-8 text-center">
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        Ararat-Kara Road, Wesen area, Yeka sub-city, Addis Ababa, Ethiopia
-        <br />
-        Between Megenagna and Wesen · Plus code: 2RHP+VCW
-      </p>
-      <p className="mt-2 text-xs text-muted-foreground">
-        <a href="tel:+251911609157" className="transition-colors hover:text-primary">
-          091 160 91 57
-        </a>
-      </p>
+    <footer className="mt-auto border-t border-border py-8 text-center">
       <p className="mt-4 text-xs tracking-[0.2em] text-muted-foreground uppercase">
         © {new Date().getFullYear()} Melala Cafe &amp; Restaurant
       </p>
@@ -85,8 +85,8 @@ export function SiteFooter() {
 
 export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
-    <header className="pt-14 pb-4 text-center sm:pt-20">
-      <BrandLogo className="mb-5 w-24 sm:w-28" />
+    <header className="hero-stagger pt-14 pb-4 text-center sm:pt-20">
+      <BrandLogo className="mb-5 w-44 sm:w-56" />
       <p className="tracking-widget text-accent">{eyebrow}</p>
       <h1 className="display-title mt-3">{title}</h1>
       <div className="mx-auto mt-5 h-px w-24 bg-border" />
@@ -95,16 +95,18 @@ export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string 
 }
 
 export function PaymentButton() {
+  const { t } = useLanguage();
+
   return (
     <Link to="/payment" className="btn-primary">
-      Payment
+      {t("payment")}
     </Link>
   );
 }
 
 export function PaymentBar() {
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-14 border-t border-border bg-background/90 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
+    <div className="mt-auto border-t border-border py-4">
       <div className="mx-auto flex max-w-5xl justify-center">
         <PaymentButton />
       </div>

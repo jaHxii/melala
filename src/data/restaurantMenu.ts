@@ -6,9 +6,24 @@ export const restaurantMenu: MenuSection[] = [
     category: "Starters",
     local: "መጀመሪያ",
     items: [
-      { name: "Sambusa (3 pcs)", local: "ሳምቡሳ", description: "Lentil or minced beef, crisp pastry", price: 240 },
-      { name: "Chicken Wings", local: "የዶሮ ክንፍ", description: "Honey chili glaze, lime", price: 460 },
-      { name: "Garlic Bread", local: "ነጭ ሽንኩርት ዳቦ", description: "Herb butter, parmesan", price: 220 },
+      {
+        name: "Sambusa (3 pcs)",
+        local: "ሳምቡሳ",
+        description: "Lentil or minced beef, crisp pastry",
+        price: 240,
+      },
+      {
+        name: "Chicken Wings",
+        local: "የዶሮ ክንፍ",
+        description: "Honey chili glaze, lime",
+        price: 460,
+      },
+      {
+        name: "Garlic Bread",
+        local: "ነጭ ሽንኩርት ዳቦ",
+        description: "Herb butter, parmesan",
+        price: 220,
+      },
       { name: "Soup of the Day", local: "የቀኑ ሾርባ", price: 260 },
     ],
   },
@@ -16,19 +31,43 @@ export const restaurantMenu: MenuSection[] = [
     category: "Ethiopian Specials",
     local: "የሀገር ምግብ",
     items: [
-      { name: "Doro Wot", local: "ዶሮ ወጥ", description: "Slow-cooked chicken, berbere, egg", price: 720 },
-      { name: "Key Sega Wot", local: "ቀይ ስጋ ወጥ", description: "Beef stew with spiced butter", price: 680 },
-      { name: "Tibs Special", local: "ስፔሻል ጥብስ", description: "Pan-seared beef, rosemary, jalapeño", price: 750 },
+      {
+        name: "Doro Wot",
+        local: "ዶሮ ወጥ",
+        description: "Slow-cooked chicken, berbere, egg",
+        price: 720,
+      },
+      {
+        name: "Key Sega Wot",
+        local: "ቀይ ስጋ ወጥ",
+        description: "Beef stew with spiced butter",
+        price: 680,
+      },
+      {
+        name: "Tibs Special",
+        local: "ስፔሻል ጥብስ",
+        description: "Pan-seared beef, rosemary, jalapeño",
+        price: 750,
+      },
       { name: "Shiro Feses", local: "ሽሮ ፍሰስ", price: 380 },
       { name: "Beyaynetu", local: "በያይነቱ", description: "Assorted fasting platter", price: 420 },
-      { name: "Kitfo Special", local: "ስፔሻል ክትፎ", description: "Minced beef, mitmita, ayib, gomen", price: 890 },
+      {
+        name: "Kitfo Special",
+        local: "ስፔሻል ክትፎ",
+        description: "Minced beef, mitmita, ayib, gomen",
+        price: 890,
+      },
     ],
   },
   {
     category: "Main Course",
     local: "ዋና ምግብ",
     items: [
-      { name: "Grilled Chicken Breast", description: "Mashed potato, seasonal vegetables", price: 780 },
+      {
+        name: "Grilled Chicken Breast",
+        description: "Mashed potato, seasonal vegetables",
+        price: 780,
+      },
       { name: "Beef Steak", description: "250g sirloin, pepper sauce, fries", price: 1150 },
       { name: "Grilled Tilapia", description: "Lemon butter, rice pilaf", price: 860 },
       { name: "Lamb Chops", description: "Rosemary jus, roast potato", price: 1250 },
@@ -56,7 +95,11 @@ export const restaurantMenu: MenuSection[] = [
   {
     category: "Burgers",
     items: [
-      { name: "Classic Beef Burger", description: "Cheddar, lettuce, house sauce, fries", price: 780 },
+      {
+        name: "Classic Beef Burger",
+        description: "Cheddar, lettuce, house sauce, fries",
+        price: 780,
+      },
       { name: "Double Decker", price: 950 },
       { name: "Crispy Chicken Burger", price: 720 },
       { name: "Veggie Burger", price: 620 },

@@ -1,16 +1,18 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
+  createRootRoute,
   useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-tracking";
+import { SITE_URL, SITE_TITLE } from "../lib/constants";
+import { LanguageProvider } from "../lib/language";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 function NotFoundComponent() {
   return (
@@ -35,11 +37,8 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  reportError(error, "error");
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -60,41 +59,79 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+function RootLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Melala — Cafe & Restaurant" },
-      { name: "description", content: "Melala Cafe & Restaurant, Addis Ababa." },
+      { name: "theme-color", content: "#2d1f10" },
+      { title: SITE_TITLE },
+      {
+        name: "description",
+        content:
+          "Melala Cafe & Restaurant, Addis Ababa. Specialty coffee, all-day breakfast and Ethiopian classics.",
+      },
       { property: "og:site_name", content: "Melala" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: SITE_TITLE },
+      {
+        property: "og:description",
+        content: "Specialty coffee, all-day breakfast and Ethiopian classics in Addis Ababa.",
+      },
+      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image:width", content: "512" },
+      { property: "og:image:height", content: "512" },
+      { property: "og:url", content: SITE_URL },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: SITE_TITLE },
+      {
+        name: "twitter:description",
+        content: "Specialty coffee, all-day breakfast and Ethiopian classics in Addis Ababa.",
+      },
+      { name: "twitter:image", content: `${SITE_URL}/logo.png` },
+      { name: "robots", content: "index, follow" },
+      { name: "author", content: "Melala Cafe & Restaurant" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "preload",
+        href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap",
+        as: "style",
+      },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "icon", href: "/logo.png", type: "image/png", sizes: "512x512" },
+      { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/logo.png", sizes: "512x512" },
+      { rel: "manifest", href: "/manifest.json" },
     ],
   }),
 
@@ -111,20 +148,31 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <LanguageProvider>
+          {children}
+          <LanguageToggle />
+        </LanguageProvider>
         <Scripts />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js').catch(() => {});
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+    <Suspense fallback={<RootLoading />}>
       <Outlet />
-    </QueryClientProvider>
+    </Suspense>
   );
 }

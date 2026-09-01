@@ -1,0 +1,58 @@
+export type Locale = "en" | "am";
+
+export const translations = {
+  en: {
+    findUs: "Find Us",
+    callUs: "Call Us",
+    payment: "Payment",
+    backToMenu: "Back to menu",
+    estAddisAbaba: "Est. Addis Ababa",
+    cafeAndRestaurant: "Cafe & Restaurant",
+    description:
+      "Slow-roasted Ethiopian coffee, all-day breakfast and a kitchen that treats every plate like it matters. A quiet corner of the city built for lingering.",
+    hours: "Hours",
+    contact: "Contact",
+    location: "Location",
+    monSun: "Mon – Sun",
+    hoursTime: "7:00 AM – 10:00 PM",
+    plusCode: "Plus code: 2RHP+VCW",
+    cafeMenu: "Cafe Menu",
+    restaurantMenu: "Restaurant Menu",
+    allPricesInEtb: "All prices in ETB",
+    paymentTitle: "Payment",
+    paymentDescription: "Scan the code for your preferred payment method.",
+    showConfirmation: "Please show your payment confirmation to a member of staff",
+    developedBy: "Developed by",
+    language: "Language",
+    english: "English",
+    amharic: "Amharic",
+  },
+  am: {
+    findUs: "አግኙን",
+    callUs: "ደውሉልን",
+    payment: "ክፍያ",
+    backToMenu: "ወደ ዝርዝር ተመለስ",
+    estAddisAbaba: "ተመሠረተ፡ አዲስ አበባ",
+    cafeAndRestaurant: "ካፌ እና ሬስቶራንት",
+    description:
+      "በቀስታ የተቆላ የኢትዮጵያ ቡና፣ ቀኑን ሙሉ የሚቀርብ ቁርስ እና እያንዳንዱን ሳህን እንደ አስፈላጊ ነገር የሚያይ ማድበት። ለመዝናናት የተሰራ የከተማዋ ፀጥ ያለ ማዕዘን።",
+    hours: "የስራ ሰዓታት",
+    contact: "አድራሻ / መገናኛ",
+    location: "ቦታ",
+    monSun: "ሰኞ – እሁድ",
+    hoursTime: "7:00 AM – 10:00 PM",
+    plusCode: "ፕላስ ኮድ: 2RHP+VCW",
+    cafeMenu: "የካፌ ዝርዝር",
+    restaurantMenu: "የሬስቶራንት ዝርዝር",
+    allPricesInEtb: "ዋጋዎች በብር ናቸው።",
+    paymentTitle: "ክፍያ",
+    paymentDescription: "ለምርጥ የክፍያ መንገድዎ ኮዱን እስካን ያድርጉ።",
+    showConfirmation: "እባክዎ የክፍያ ማረጋገጫዎን ለሠራተኛ ያሳዩ",
+    developedBy: "Developed by",
+    language: "ቋንቋ",
+    english: "እንግሊዝኛ",
+    amharic: "አማርኛ",
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.en;
