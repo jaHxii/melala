@@ -40,7 +40,7 @@ function RestaurantMenuPage() {
         {t("allPricesInEtb")}
       </p>
       <MenuGrid sections={restaurantMenu} />
-      <PaymentBar />
+      <PaymentBar from="restaurant" />
       <SiteFooter />
     </main>
   );

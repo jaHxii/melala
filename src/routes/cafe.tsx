@@ -37,7 +37,7 @@ function CafeMenuPage() {
         {t("allPricesInEtb")}
       </p>
       <MenuGrid sections={cafeMenu} />
-      <PaymentBar />
+      <PaymentBar from="cafe" />
       <SiteFooter />
     </main>
   );

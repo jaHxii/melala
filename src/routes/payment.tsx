@@ -5,6 +5,10 @@ import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { useBlockBack } from "@/hooks/use-block-back";
 
+type PaymentSearch = {
+  from: string;
+};
+
 export const Route = createFileRoute("/payment")({
   head: () => ({
     meta: [
@@ -22,12 +26,18 @@ export const Route = createFileRoute("/payment")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/payment` }],
   }),
+  validateSearch: (search: Record<string, unknown>): PaymentSearch => {
+    return { from: (search.from as string) || "cafe" };
+  },
   component: PaymentPage,
 });
 
 function PaymentPage() {
   const { t } = useLanguage();
+  const { from } = Route.useSearch();
   useBlockBack();
+
+  const menuPath = from === "restaurant" ? "/restaurant" : "/cafe";
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 pb-20 sm:px-6">
@@ -57,19 +67,11 @@ function PaymentPage() {
       </p>
 
       <div className="mt-8 flex justify-center">
-        <BackToMenu />
+        <Link to={menuPath} className="btn-outline">
+          {t("backToMenu")}
+        </Link>
       </div>
       <SiteFooter />
     </main>
-  );
-}
-
-function BackToMenu() {
-  const { t } = useLanguage();
-
-  return (
-    <Link to="/cafe" className="btn-outline">
-      {t("backToMenu")}
-    </Link>
   );
 }

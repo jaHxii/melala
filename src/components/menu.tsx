@@ -94,21 +94,21 @@ export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string 
   );
 }
 
-export function PaymentButton() {
+export function PaymentButton({ from }: { from: string }) {
   const { t } = useLanguage();
 
   return (
-    <Link to="/payment" className="btn-primary">
+    <Link to="/payment" search={{ from }} className="btn-primary">
       {t("payment")}
     </Link>
   );
 }
 
-export function PaymentBar() {
+export function PaymentBar({ from }: { from: string }) {
   return (
     <div className="mt-auto border-t border-border py-4">
       <div className="mx-auto flex max-w-5xl justify-center">
-        <PaymentButton />
+        <PaymentButton from={from} />
       </div>
     </div>
   );
