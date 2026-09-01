@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { cafeMenu } from "@/data/cafeMenu";
-import { MenuGrid, MenuHeader, PaymentBar } from "@/components/menu";
+import { MenuGrid, MenuHeader, PaymentBar , SiteFooter } from "@/components/menu";
 
 export const Route = createFileRoute("/cafe")({
   head: () => ({
@@ -29,6 +29,7 @@ function CafeMenuPage() {
         All prices in ETB
       </p>
       <MenuGrid sections={cafeMenu} />
+      <SiteFooter />
       <PaymentBar />
     </main>
   );
