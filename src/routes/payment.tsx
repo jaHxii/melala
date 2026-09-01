@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { paymentMethods } from "@/data/paymentMethods";
 import { MenuHeader, SectionBadge, SiteFooter } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
@@ -68,8 +68,8 @@ function BackToMenu() {
   const { t } = useLanguage();
 
   return (
-    <button type="button" onClick={() => window.history.back()} className="btn-outline">
+    <Link to="/cafe" className="btn-outline">
       {t("backToMenu")}
-    </button>
+    </Link>
   );
 }
