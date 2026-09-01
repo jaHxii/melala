@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BrandLogo, SiteFooter } from "@/components/menu";
 
 const GOOGLE_MAPS_LINK = "GOOGLE_MAPS_LINK_HERE";
-const PHONE = "+251XXXXXXXXX";
+const PHONE = "+251911609157";
 
 export const Route = createFileRoute("/")({
   head: () => ({

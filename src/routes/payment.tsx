@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { paymentMethods } from "@/data/paymentMethods";
 import { MockQr } from "@/components/MockQr";
-import { MenuHeader, SectionBadge } from "@/components/menu";
+import { MenuHeader, SectionBadge , SiteFooter } from "@/components/menu";
 
 export const Route = createFileRoute("/payment")({
   head: () => ({
@@ -50,6 +50,7 @@ function PaymentPage() {
       <div className="mt-8 flex justify-center">
         <BackToMenu />
       </div>
+      <SiteFooter />
     </main>
   );
 }
