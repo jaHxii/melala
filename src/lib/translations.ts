@@ -22,8 +22,7 @@ export const translations = {
     paymentTitle: "Payment",
     paymentDescription: "Scan the code for your preferred payment method.",
     showConfirmation: "Please show your payment confirmation to a member of staff",
-    developedBy: "Developed by",
-    language: "Language",
+
     english: "English",
     amharic: "Amharic",
   },

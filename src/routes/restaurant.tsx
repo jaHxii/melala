@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { restaurantMenu } from "@/data/restaurantMenu";
-import { MenuGrid, MenuHeader, PaymentBar, SiteFooter } from "@/components/menu";
+import { MenuGrid, MenuHeader, CategoryFilter, StickyPayButton } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
-import { useBlockBack } from "@/hooks/use-block-back";
 
 export const Route = createFileRoute("/restaurant")({
   head: () => ({
@@ -24,24 +24,31 @@ export const Route = createFileRoute("/restaurant")({
       { property: "og:image", content: `${SITE_URL}/logo.png` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/restaurant` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/restaurant` },
+      { rel: "preload", href: "/logo.webp", as: "image", type: "image/webp" },
+    ],
   }),
   component: RestaurantMenuPage,
 });
 
 function RestaurantMenuPage() {
   const { t } = useLanguage();
-  useBlockBack();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-5xl flex-col px-4 sm:px-6">
+    <div className="mx-auto flex max-w-5xl flex-col px-4 pb-24 sm:px-6">
       <MenuHeader eyebrow="Melala" title={t("restaurantMenu")} />
       <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
         {t("allPricesInEtb")}
       </p>
-      <MenuGrid sections={restaurantMenu} />
-      <PaymentBar from="restaurant" />
-      <SiteFooter />
-    </main>
+      <CategoryFilter
+        sections={restaurantMenu}
+        activeCategory={activeCategory}
+        onSelect={setActiveCategory}
+      />
+      <MenuGrid sections={restaurantMenu} filter={activeCategory} />
+      <StickyPayButton from="restaurant" />
+    </div>
   );
 }

@@ -5,8 +5,10 @@ Digital menu and payment website for Melala Cafe & Restaurant in Addis Ababa, Et
 ## Tech Stack
 
 - React 19 + TanStack Router (file-based routing)
-- Tailwind CSS 4 + shadcn/ui
-- Vite + Nitro (Cloudflare Workers)
+- Tailwind CSS 4 + custom utility classes
+- Vite + Nitro (Cloudflare Workers → Netlify SSR)
+- Dark mode support (system preference + manual toggle)
+- Bilingual: English / Amharic
 
 ## Development
 
@@ -32,6 +34,24 @@ npm run format    # Prettier
 | `/cafe`       | Cafe menu (QR entry point)       |
 | `/restaurant` | Restaurant menu (QR entry point) |
 | `/payment`    | Payment QR codes                 |
+
+## Design System
+
+Custom Tailwind utilities defined in `src/styles.css`:
+
+- **Buttons:** `btn-primary`, `btn-secondary`, `btn-outline`
+- **Cards:** `card-hover`, `card-hover-lift`, `menu-item-card`
+- **Typography:** `section-heading`, `display-title`, `tracking-widget`, `font-display`, `font-ethiopic`
+- **Effects:** `bg-grain`, `glass`, `text-gradient-brand`, `animate-shimmer`
+- **Accessibility:** `focus-ring`, `sr-only`
+
+Colors use `oklch()` format (Tailwind 4 requirement). Dark mode via `.dark` class on `<html>`.
+
+## Fonts
+
+- **Fraunces** — display headings
+- **Inter** — body text
+- **Noto Sans Ethiopic** — Amharic text
 
 ## Deployment
 

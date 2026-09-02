@@ -4,8 +4,8 @@
   "description": "Specialty coffee, all-day breakfast and Ethiopian classics in Addis Ababa.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2d1f10",
-  "theme_color": "#2d1f10",
+  "background_color": "#160e08",
+  "theme_color": "#160e08",
   "orientation": "portrait-primary",
   "icons": [
     {

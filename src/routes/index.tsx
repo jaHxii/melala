@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BrandLogo, SiteFooter } from "@/components/menu";
+import { BrandLogo } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useParallax } from "@/hooks/use-parallax";
 import { useInView } from "@/hooks/use-in-view";
@@ -72,17 +72,14 @@ function Home() {
   const { t } = useLanguage();
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-5 sm:px-6">
-      <section className="hero-stagger flex flex-1 flex-col items-center justify-center py-20 text-center">
-        <div
-          className="parallax-layer"
-          style={{ transform: `translateY(${-parallaxOffset * 0.5}px)` }}
-        >
+    <div className="mx-auto flex max-w-3xl flex-col px-5 sm:px-6">
+      <section className="flex flex-1 flex-col items-center justify-center py-20 text-center">
+        <div style={{ transform: `translateY(${-parallaxOffset * 0.5}px)` }}>
           <BrandLogo className="mb-8 w-56 sm:w-72" />
         </div>
-        <p className="tracking-widget text-accent">{t("estAddisAbaba")}</p>
+        <p className="tracking-widget text-cream/60">{t("estAddisAbaba")}</p>
         <h1
-          className="mt-5 font-[family-name:var(--font-display)] font-semibold uppercase leading-none tracking-[0.16em] text-foreground"
+          className="mt-5 font-display font-semibold uppercase leading-none tracking-[0.16em] text-foreground"
           style={{ fontSize: "clamp(3rem, 10vw, 5rem)" }}
         >
           Melala
@@ -90,7 +87,7 @@ function Home() {
           <span className="text-3xl sm:text-4xl">{t("cafeAndRestaurant")}</span>
         </h1>
         <div className="mx-auto mt-6 h-px w-24 bg-border" />
-        <p className="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+        <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/70 sm:text-base">
           {t("description")}
         </p>
 
@@ -108,7 +105,7 @@ function Home() {
           </a>
         </div>
 
-        <div className="scroll-indicator mt-16 text-muted-foreground">
+        <div className="mt-16 animate-float text-foreground/40">
           <svg
             width="24"
             height="24"
@@ -129,29 +126,27 @@ function Home() {
         ref={infoRef}
         className={`grid grid-cols-2 gap-4 pb-16 reveal ${infoVisible ? "visible" : ""}`}
       >
-        <div className="menu-card text-center">
-          <p className="tracking-widget text-accent">{t("hours")}</p>
-          <p className="mt-3 text-sm text-muted-foreground">{t("monSun")}</p>
+        <div className="card-hover rounded-2xl border border-border bg-card p-6 text-center">
+          <p className="tracking-widget text-cream/60">{t("hours")}</p>
+          <p className="mt-3 text-sm text-foreground/60">{t("monSun")}</p>
           <p className="text-sm text-foreground">{t("hoursTime")}</p>
         </div>
-        <div className="menu-card text-center">
-          <p className="tracking-widget text-accent">{t("contact")}</p>
-          <a href={`tel:${PHONE}`} className="mt-3 block text-sm text-muted-foreground">
+        <div className="card-hover rounded-2xl border border-border bg-card p-6 text-center">
+          <p className="tracking-widget text-cream/60">{t("contact")}</p>
+          <a href={`tel:${PHONE}`} className="mt-3 block text-sm text-foreground/70 focus-ring">
             091 160 91 57
           </a>
         </div>
-        <div className="menu-card col-span-2 text-center">
-          <p className="tracking-widget text-accent">{t("location")}</p>
-          <p className="mt-3 text-sm text-muted-foreground">
+        <div className="card-hover col-span-2 rounded-2xl border border-border bg-card p-6 text-center">
+          <p className="tracking-widget text-cream/60">{t("location")}</p>
+          <p className="mt-3 text-sm text-foreground/70">
             Ararat-Kara Road, Wesen area,
             <br />
             Yeka sub-city, Addis Ababa
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("plusCode")}</p>
+          <p className="mt-1 text-sm text-foreground/60">{t("plusCode")}</p>
         </div>
       </section>
-
-      <SiteFooter />
-    </main>
+    </div>
   );
 }
