@@ -79,10 +79,10 @@ function Home() {
         </div>
         <p className="tracking-widget text-cream/60">{t("estAddisAbaba")}</p>
         <h1
-          className="mt-5 font-display font-semibold uppercase leading-none tracking-[0.16em] text-foreground"
+          className="mt-5 font-display font-semibold uppercase leading-none tracking-[0.16em]"
           style={{ fontSize: "clamp(3rem, 10vw, 5rem)" }}
         >
-          Melala
+          <span className="brand-coffee uppercase">Melala</span>
           <br />
           <span className="text-3xl sm:text-4xl">{t("cafeAndRestaurant")}</span>
         </h1>

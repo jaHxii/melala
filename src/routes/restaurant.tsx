@@ -37,18 +37,20 @@ function RestaurantMenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col px-4 pb-24 sm:px-6">
-      <MenuHeader eyebrow="Melala" title={t("restaurantMenu")} />
-      <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
-        {t("allPricesInEtb")}
-      </p>
-      <CategoryFilter
-        sections={restaurantMenu}
-        activeCategory={activeCategory}
-        onSelect={setActiveCategory}
-      />
-      <MenuGrid sections={restaurantMenu} filter={activeCategory} />
-      <StickyPayButton from="restaurant" />
+    <div className="menu-bg-solid min-h-screen">
+      <div className="mx-auto flex max-w-5xl flex-col px-4 pb-24 sm:px-6">
+        <MenuHeader eyebrow="Melala" title={t("restaurantMenu")} />
+        <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
+          {t("allPricesInEtb")}
+        </p>
+        <CategoryFilter
+          sections={restaurantMenu}
+          activeCategory={activeCategory}
+          onSelect={setActiveCategory}
+        />
+        <MenuGrid sections={restaurantMenu} filter={activeCategory} />
+        <StickyPayButton from="restaurant" />
+      </div>
     </div>
   );
 }

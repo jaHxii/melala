@@ -14,7 +14,9 @@ import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-tracking";
 import { SITE_URL, SITE_TITLE } from "../lib/constants";
 import { LanguageProvider, useLanguage } from "../lib/language";
+import { ThemeProvider, useTheme } from "../lib/theme";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /* ── Back Button Handler ────────────────────────────────────────── */
 
@@ -54,18 +56,20 @@ function BackBlocker() {
 /* ── Minimal Home Header ────────────────────────────────────────── */
 
 function HomeHeader() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   return (
-    <header className="sticky top-0 z-50 border-b border-transparent bg-background/95 backdrop-blur-sm transition-all duration-300">
+    <header className="header-gradient-bar sticky top-0 z-50 border-b border-transparent bg-background/95 backdrop-blur-sm transition-all duration-300">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
         <Link
           to="/"
           className="flex min-w-0 items-center gap-3"
           aria-label="Melala Cafe & Restaurant — home"
         >
-          <picture>
-            <source type="image/webp" srcSet="/logo.webp" />
+          {isLight ? (
             <img
-              src="/logo.png"
+              src="/light-logo.jpg"
               alt="Melala Cafe & Restaurant logo"
               width="54"
               height="54"
@@ -73,9 +77,22 @@ function HomeHeader() {
               style={{ maxHeight: "54px" }}
               decoding="async"
             />
-          </picture>
+          ) : (
+            <picture>
+              <source type="image/webp" srcSet="/logo.webp" />
+              <img
+                src="/logo.png"
+                alt="Melala Cafe & Restaurant logo"
+                width="54"
+                height="54"
+                className="h-auto w-auto shrink-0 rounded-sm object-contain"
+                style={{ maxHeight: "54px" }}
+                decoding="async"
+              />
+            </picture>
+          )}
           <span className="hidden min-w-0 flex-col leading-tight sm:flex">
-            <span className="truncate font-display text-base font-semibold tracking-[0.16em] uppercase text-ink">
+            <span className="truncate font-display text-base font-semibold tracking-[0.16em] uppercase brand-coffee">
               Melala
             </span>
             <span className="font-ethiopic truncate text-[12px] text-muted-foreground">
@@ -345,6 +362,10 @@ function RootShell({ children }: { children: ReactNode }) {
                 try {
                   var lang = localStorage.getItem("melala-lang");
                   if (lang === "am") document.documentElement.lang = "am";
+                  var theme = localStorage.getItem("melala-theme");
+                  if (theme === "dark") document.documentElement.classList.add("dark");
+                  else if (theme === "light") document.documentElement.classList.remove("dark");
+                  else if (window.matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.classList.add("dark");
                 } catch (e) {}
               })();
             `,
@@ -352,35 +373,73 @@ function RootShell({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <LanguageProvider>
-          <HtmlLangSync />{" "}
-          {isQRPage ? (
-            /* QR pages: no chrome, just content + back blocker + language toggle */
-            <>
-              <BackBlocker />
-              {children}
-              <LanguageToggle />
-            </>
-          ) : isHome ? (
-            /* Home page: minimal header + content + minimal footer */
-            <>
-              <HomeHeader />
-              <main id="main" className="pb-16 sm:pb-0">
+        <ThemeProvider>
+          <LanguageProvider>
+            <HtmlLangSync />{" "}
+            {isQRPage ? (
+              /* QR pages: no chrome, just content + back blocker + toggles */
+              <>
+                <BackBlocker />
                 {children}
-              </main>
-              <HomeFooter />
-              <LanguageToggle />
-            </>
-          ) : (
-            /* Other pages (404, error): basic shell */
-            <>
-              <main id="main" className="pb-16 sm:pb-0">
-                {children}
-              </main>
-              <LanguageToggle />
-            </>
-          )}
-        </LanguageProvider>
+                <div
+                  style={{
+                    position: "fixed",
+                    top: "1rem",
+                    right: "1rem",
+                    zIndex: 9999,
+                    display: "flex",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <ThemeToggle />
+                  <LanguageToggle />
+                </div>
+              </>
+            ) : isHome ? (
+              /* Home page: minimal header + content + minimal footer */
+              <>
+                <HomeHeader />
+                <main id="main" className="pb-16 sm:pb-0">
+                  {children}
+                </main>
+                <HomeFooter />
+                <div
+                  style={{
+                    position: "fixed",
+                    top: "1rem",
+                    right: "1rem",
+                    zIndex: 9999,
+                    display: "flex",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <ThemeToggle />
+                  <LanguageToggle />
+                </div>
+              </>
+            ) : (
+              /* Other pages (404, error): basic shell */
+              <>
+                <main id="main" className="pb-16 sm:pb-0">
+                  {children}
+                </main>
+                <div
+                  style={{
+                    position: "fixed",
+                    top: "1rem",
+                    right: "1rem",
+                    zIndex: 9999,
+                    display: "flex",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <ThemeToggle />
+                  <LanguageToggle />
+                </div>
+              </>
+            )}
+          </LanguageProvider>
+        </ThemeProvider>
         <Scripts />
         <script
           dangerouslySetInnerHTML={{

@@ -4,13 +4,17 @@ import {
   type MenuItem as MenuItemType,
 } from "@/data/cafeMenu";
 import { useLanguage } from "@/lib/language";
+import { useTheme } from "@/lib/theme";
 import { useState, useCallback, useRef, type ReactNode } from "react";
 
 /* ── Section Badge ──────────────────────────────────────────────── */
 
 export function SectionBadge({ label, local }: { label: string; local?: string | undefined }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2 text-sm font-bold uppercase tracking-[0.16em] text-brand">
+    <span
+      className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold uppercase tracking-[0.16em]"
+      style={{ backgroundColor: "var(--clay)", color: "var(--berbere)" }}
+    >
       {local ? (
         <span className="font-ethiopic text-xs font-medium normal-case tracking-normal opacity-70">
           {local}&nbsp;/&nbsp;
@@ -50,20 +54,14 @@ export function MenuItemRow({ item }: { item: MenuItemType }) {
     >
       <div className="min-w-0 flex-1">
         {item.local ? <p className="font-ethiopic text-sm text-cream/70">{item.local}</p> : null}
-        <h3 className="text-lg font-bold text-foreground">{item.name}</h3>
-        {item.description ? (
-          <p className="mt-0.5 text-sm text-foreground/60">{item.description}</p>
-        ) : null}
+        <h3 className="menu-item-name">{item.name}</h3>
+        {item.description ? <p className="menu-item-desc">{item.description}</p> : null}
       </div>
       <span
         aria-hidden="true"
         className="min-w-6 flex-1 self-center border-b-2 border-dotted border-foreground/30"
       />
-      <span
-        className={`font-display text-xl font-bold tabular-nums transition-all duration-300 ${
-          tapped ? "scale-110 text-cream" : "text-cream"
-        }`}
-      >
+      <span className={`menu-price-pill transition-all duration-300 ${tapped ? "scale-110" : ""}`}>
         {item.price}
       </span>
     </li>
@@ -76,10 +74,20 @@ export function MenuSectionCard({ section, id }: { section: MenuSectionType; id?
   return (
     <section
       id={id}
-      className="break-inside-avoid rounded-2xl border border-border bg-card p-6 pb-7 transition-all duration-300 hover:border-cream hover:shadow-lg hover:shadow-cream/5"
+      className="card-berbere-hover break-inside-avoid rounded-2xl border border-border bg-card p-6 pb-7"
     >
       <div className="-mt-8 mb-8 flex justify-center">
         <SectionBadge label={section.category} local={section.local} />
+      </div>
+      <div className="mb-6">
+        <h2 className="menu-section-title text-center">
+          {section.local && (
+            <span className="font-ethiopic text-sm font-medium normal-case tracking-normal opacity-70 mr-2">
+              {section.local}
+            </span>
+          )}
+          {section.category}
+        </h2>
       </div>
       <ul className="space-y-2" aria-label={`${section.category} menu items`}>
         {section.items.map((item) => (
@@ -99,6 +107,7 @@ export function BrandLogo({
   className?: string;
   scrollable?: boolean;
 }) {
+  const { theme } = useTheme();
   const handleClick = useCallback(() => {
     if (scrollable) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -106,6 +115,7 @@ export function BrandLogo({
   }, [scrollable]);
 
   const Tag = scrollable ? "button" : "span";
+  const isLight = theme === "light";
 
   return (
     <Tag
@@ -114,17 +124,28 @@ export function BrandLogo({
       aria-label={scrollable ? "Scroll to top" : undefined}
       type={scrollable ? "button" : undefined}
     >
-      <picture>
-        <source srcSet="/logo.webp" type="image/webp" />
+      {isLight ? (
         <img
-          src="/logo.png"
+          src="/light-logo.jpg"
           alt="Melala Coffee logo"
           className={`mx-auto h-auto ${className}`}
           width={512}
           height={512}
           fetchPriority="high"
         />
-      </picture>
+      ) : (
+        <picture>
+          <source srcSet="/logo.webp" type="image/webp" />
+          <img
+            src="/logo.png"
+            alt="Melala Coffee logo"
+            className={`mx-auto h-auto ${className}`}
+            width={512}
+            height={512}
+            fetchPriority="high"
+          />
+        </picture>
+      )}
     </Tag>
   );
 }
@@ -136,7 +157,9 @@ export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string 
     <header className="flex flex-col items-center pt-14 pb-4 text-center sm:pt-20">
       <BrandLogo className="mb-5 w-44 sm:w-56" scrollable />
       <p className="tracking-widget text-cream/60">{eyebrow}</p>
-      <h1 className="section-heading mt-3">{title}</h1>
+      <h1 className="section-heading mt-3 uppercase">
+        <span className="brand-coffee">Melala</span>
+      </h1>
       <div className="mx-auto mt-5 h-px w-24 bg-border" />
     </header>
   );
@@ -159,10 +182,10 @@ export function CategoryFilter({
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`shrink-0 rounded-full border px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all ${
+          className={`filter-pill-active shrink-0 rounded-full border px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all ${
             activeCategory === null
-              ? "border-cream bg-cream text-brand"
-              : "border-border bg-card text-foreground/70 hover:border-cream/50 hover:text-foreground"
+              ? "border-transparent bg-card text-berbere"
+              : "border-border bg-card text-foreground/60 hover:border-clay hover:text-foreground"
           }`}
         >
           All
@@ -174,8 +197,8 @@ export function CategoryFilter({
             onClick={() => onSelect(section.category)}
             className={`shrink-0 rounded-full border px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all ${
               activeCategory === section.category
-                ? "border-cream bg-cream text-brand"
-                : "border-border bg-card text-foreground/70 hover:border-cream/50 hover:text-foreground"
+                ? "filter-pill-active border-transparent bg-card text-berbere"
+                : "border-border bg-card text-foreground/60 hover:border-clay hover:text-foreground"
             }`}
           >
             {section.category}
@@ -216,14 +239,30 @@ export function StickyPayButton({ from }: { from: string }) {
   );
 }
 
-/* ── Section Divider ────────────────────────────────────────────── */
+/* ── Section Divider (accent gradient) ────────────────────────── */
 
 export function SectionDivider() {
   return (
     <div className="my-8 flex items-center justify-center gap-3">
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
-      <span className="font-display text-xl text-cream/30">✦</span>
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+      <div
+        className="h-px flex-1"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, var(--berbere), var(--gold), transparent)",
+          opacity: 0.4,
+        }}
+      />
+      <span className="font-display text-xl" style={{ color: "var(--berbere)", opacity: 0.4 }}>
+        ✦
+      </span>
+      <div
+        className="h-px flex-1"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, var(--gold), var(--berbere), transparent)",
+          opacity: 0.4,
+        }}
+      />
     </div>
   );
 }

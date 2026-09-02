@@ -4,6 +4,7 @@ import { paymentMethods } from "@/data/paymentMethods";
 import { SectionBadge } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
+import { useTheme } from "@/lib/theme";
 
 type PaymentSearch = {
   from: string;
@@ -139,19 +140,33 @@ function PaymentPage() {
 
   const selected = paymentMethods.find((m) => m.name === selectedMethod);
 
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   return (
     <div className="mx-auto flex min-h-screen max-w-5xl flex-col items-center px-4 pb-20 pt-14 sm:px-6 sm:pt-20">
-      <picture>
-        <source type="image/webp" srcSet="/logo.webp" />
+      {isLight ? (
         <img
-          src="/logo.png"
+          src="/light-logo.jpg"
           alt="Melala"
           width="64"
           height="64"
           className="mb-4 h-16 w-16 object-contain"
           decoding="async"
         />
-      </picture>
+      ) : (
+        <picture>
+          <source type="image/webp" srcSet="/logo.webp" />
+          <img
+            src="/logo.png"
+            alt="Melala"
+            width="64"
+            height="64"
+            className="mb-4 h-16 w-16 object-contain"
+            decoding="async"
+          />
+        </picture>
+      )}
       <h1 className="section-heading text-center">{t("paymentTitle")}</h1>
       <p className="mt-4 text-center text-sm text-muted-foreground">{t("paymentDescription")}</p>
 
