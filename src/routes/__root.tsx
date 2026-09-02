@@ -380,8 +380,10 @@ function RootShell({ children }: { children: ReactNode }) {
               <>
                 <BackBlocker />
                 {children}
-                <div className="fixed right-4 z-[9999] flex gap-2 max-sm:bottom-24 sm:bottom-8">
+                <div className="fixed left-4 top-4 z-[9999]">
                   <ThemeToggle />
+                </div>
+                <div className="fixed right-4 top-4 z-[9999]">
                   <LanguageToggle />
                 </div>
               </>
@@ -393,8 +395,10 @@ function RootShell({ children }: { children: ReactNode }) {
                   {children}
                 </main>
                 <HomeFooter />
-                <div className="fixed right-4 top-4 z-[9999] flex gap-2">
+                <div className="fixed left-4 top-4 z-[9999]">
                   <ThemeToggle />
+                </div>
+                <div className="fixed right-4 top-4 z-[9999]">
                   <LanguageToggle />
                 </div>
               </>
@@ -404,8 +408,10 @@ function RootShell({ children }: { children: ReactNode }) {
                 <main id="main" className="pb-16 sm:pb-0">
                   {children}
                 </main>
-                <div className="fixed right-4 top-4 z-[9999] flex gap-2">
+                <div className="fixed left-4 top-4 z-[9999]">
                   <ThemeToggle />
+                </div>
+                <div className="fixed right-4 top-4 z-[9999]">
                   <LanguageToggle />
                 </div>
               </>
