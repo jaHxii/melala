@@ -381,16 +381,7 @@ function RootShell({ children }: { children: ReactNode }) {
               <>
                 <BackBlocker />
                 {children}
-                <div
-                  style={{
-                    position: "fixed",
-                    top: "1rem",
-                    right: "1rem",
-                    zIndex: 9999,
-                    display: "flex",
-                    gap: "0.5rem",
-                  }}
-                >
+                <div className="fixed right-4 top-[5.5rem] z-[9999] flex gap-2 max-sm:top-[4.5rem]">
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>
@@ -403,16 +394,7 @@ function RootShell({ children }: { children: ReactNode }) {
                   {children}
                 </main>
                 <HomeFooter />
-                <div
-                  style={{
-                    position: "fixed",
-                    top: "1rem",
-                    right: "1rem",
-                    zIndex: 9999,
-                    display: "flex",
-                    gap: "0.5rem",
-                  }}
-                >
+                <div className="fixed right-4 top-4 z-[9999] flex gap-2">
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>
@@ -423,16 +405,7 @@ function RootShell({ children }: { children: ReactNode }) {
                 <main id="main" className="pb-16 sm:pb-0">
                   {children}
                 </main>
-                <div
-                  style={{
-                    position: "fixed",
-                    top: "1rem",
-                    right: "1rem",
-                    zIndex: 9999,
-                    display: "flex",
-                    gap: "0.5rem",
-                  }}
-                >
+                <div className="fixed right-4 top-4 z-[9999] flex gap-2">
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>
