@@ -142,31 +142,21 @@ function PaymentPage() {
 
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const isCafe = from === "cafe";
+
+  const lightLogo = isCafe ? "/cafe-light-logo.jpg" : "/rest-light-logo.jpg";
+  const darkLogo = isCafe ? "/cafe-dark-logo.png" : "/rest-dark-logo.jpg";
 
   return (
     <div className="mx-auto flex min-h-screen max-w-5xl flex-col items-center px-4 pb-20 pt-14 sm:px-6 sm:pt-20">
-      {isLight ? (
-        <img
-          src="/light-logo.jpg"
-          alt="Melala"
-          width="64"
-          height="64"
-          className="mb-4 h-16 w-16 object-contain"
-          decoding="async"
-        />
-      ) : (
-        <picture>
-          <source type="image/webp" srcSet="/logo.webp" />
-          <img
-            src="/logo.png"
-            alt="Melala"
-            width="64"
-            height="64"
-            className="mb-4 h-16 w-16 object-contain"
-            decoding="async"
-          />
-        </picture>
-      )}
+      <img
+        src={isLight ? lightLogo : darkLogo}
+        alt="Melala"
+        width="64"
+        height="64"
+        className="mb-4 h-16 w-16 object-contain"
+        decoding="async"
+      />
       <h1 className="section-heading text-center">{t("paymentTitle")}</h1>
       <p className="mt-4 text-center text-sm text-muted-foreground">{t("paymentDescription")}</p>
 

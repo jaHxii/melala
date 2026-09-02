@@ -39,7 +39,12 @@ function RestaurantMenuPage() {
   return (
     <div className="menu-bg-solid min-h-screen">
       <div className="mx-auto flex max-w-5xl flex-col px-4 pb-24 sm:px-6">
-        <MenuHeader eyebrow="Melala" title={t("restaurantMenu")} />
+        <MenuHeader
+          eyebrow="Melala"
+          title={t("restaurantMenu")}
+          lightLogo="/rest-light-logo.jpg"
+          darkLogo="/rest-dark-logo.jpg"
+        />
         <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
           {t("allPricesInEtb")}
         </p>

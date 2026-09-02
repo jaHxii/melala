@@ -103,9 +103,17 @@ export function MenuSectionCard({ section, id }: { section: MenuSectionType; id?
 export function BrandLogo({
   className = "w-32 sm:w-40",
   scrollable = false,
+  lightSrc = "/light-logo.jpg",
+  darkSrc = "/logo.png",
+  darkSrcSet,
+  alt = "Melala Coffee logo",
 }: {
   className?: string;
   scrollable?: boolean;
+  lightSrc?: string;
+  darkSrc?: string;
+  darkSrcSet?: string;
+  alt?: string;
 }) {
   const { theme } = useTheme();
   const handleClick = useCallback(() => {
@@ -126,8 +134,8 @@ export function BrandLogo({
     >
       {isLight ? (
         <img
-          src="/light-logo.jpg"
-          alt="Melala Coffee logo"
+          src={lightSrc}
+          alt={alt}
           className={`mx-auto h-auto ${className}`}
           width={512}
           height={512}
@@ -135,10 +143,10 @@ export function BrandLogo({
         />
       ) : (
         <picture>
-          <source srcSet="/logo.webp" type="image/webp" />
+          {darkSrcSet ? <source srcSet={darkSrcSet} type="image/webp" /> : null}
           <img
-            src="/logo.png"
-            alt="Melala Coffee logo"
+            src={darkSrc}
+            alt={alt}
             className={`mx-auto h-auto ${className}`}
             width={512}
             height={512}
@@ -152,10 +160,28 @@ export function BrandLogo({
 
 /* ── Menu Header (logo scrolls to top) ──────────────────────────── */
 
-export function MenuHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
+export function MenuHeader({
+  eyebrow,
+  title,
+  lightLogo,
+  darkLogo,
+  darkLogoSet,
+}: {
+  eyebrow: string;
+  title: string;
+  lightLogo?: string;
+  darkLogo?: string;
+  darkLogoSet?: string;
+}) {
   return (
     <header className="flex flex-col items-center pt-14 pb-4 text-center sm:pt-20">
-      <BrandLogo className="mb-5 w-44 sm:w-56" scrollable />
+      <BrandLogo
+        className="mb-5 w-44 sm:w-56"
+        scrollable
+        lightSrc={lightLogo}
+        darkSrc={darkLogo}
+        darkSrcSet={darkLogoSet}
+      />
       <p className="tracking-widget text-cream/60">{eyebrow}</p>
       <h1 className="section-heading mt-3 uppercase">
         <span className="brand-coffee">Melala</span>
