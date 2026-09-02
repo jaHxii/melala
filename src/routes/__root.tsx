@@ -376,12 +376,11 @@ function RootShell({ children }: { children: ReactNode }) {
         <ThemeProvider>
           <LanguageProvider>
             <HtmlLangSync />{" "}
-            {isQRPage ? (
-              /* QR pages: no chrome, just content + back blocker + toggles */
+            {isQRPage /* QR pages: no chrome, just content + back blocker + toggles */ ? (
               <>
                 <BackBlocker />
                 {children}
-                <div className="fixed right-4 top-[5.5rem] z-[9999] flex gap-2 max-sm:top-[4.5rem]">
+                <div className="fixed right-4 z-[9999] flex gap-2 max-sm:bottom-24 sm:bottom-8">
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>
