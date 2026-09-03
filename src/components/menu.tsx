@@ -27,7 +27,7 @@ export function SectionBadge({ label, local }: { label: string; local?: string |
 
 /* ── Menu Item Row (with tap-to-highlight) ──────────────────────── */
 
-export function MenuItemRow({ item }: { item: MenuItemType }) {
+function MenuItemRow({ item }: { item: MenuItemType }) {
   const [tapped, setTapped] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -70,7 +70,7 @@ export function MenuItemRow({ item }: { item: MenuItemType }) {
 
 /* ── Menu Section Card (no animation) ───────────────────────────── */
 
-export function MenuSectionCard({ section, id }: { section: MenuSectionType; id?: string }) {
+function MenuSectionCard({ section, id }: { section: MenuSectionType; id?: string }) {
   return (
     <section
       id={id}
@@ -267,7 +267,7 @@ export function StickyPayButton({ from }: { from: string }) {
 
 /* ── Section Divider (accent gradient) ────────────────────────── */
 
-export function SectionDivider() {
+function SectionDivider() {
   return (
     <div className="my-8 flex items-center justify-center gap-3">
       <div

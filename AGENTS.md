@@ -100,7 +100,6 @@ Custom `@utility` classes in `styles.css`:
 ## QR Codes
 
 - Payment QR images in `public/`: `qr-telebirr.jpg`, `qr-cbe-bir.png`, `qr-abyssinia.png` — referenced from `src/data/paymentMethods.ts` (the source of truth for accounts + logos).
-- Generated marketing QR codes in repo root: `qr-cafe.png`, `qr-restaurant.png` (1024×1024, error correction H) — not used by the site.
 
 ## Git
 
@@ -115,7 +114,6 @@ Custom `@utility` classes in `styles.css`:
 - **Service worker** in `__root.tsx` registers `sw.js` only in production.
 - **`routeTree.gen.ts`** regenerates on dev server start; manual edits lost.
 - **Amharic strings** in `translations.ts` — update both EN/AM together.
-- **`qrcode`** is in devDependencies but not imported anywhere — may be unused.
 
 ## File Map (High-Level)
 

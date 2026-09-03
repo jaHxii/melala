@@ -28,7 +28,7 @@ export type DbMenuItem = {
 
 /* ── Public Menu Types (matching existing MenuSection/MenuItem) ── */
 
-export type MenuItem = {
+type MenuItem = {
   name: string;
   local?: string;
   description?: string;
@@ -40,27 +40,6 @@ export type MenuSection = {
   local?: string;
   items: MenuItem[];
 };
-
-/* ── Fetch Sections ───────────────────────────────────────────── */
-
-export async function fetchSections(type: MenuType): Promise<DbSection[]> {
-  if (!supabase) {
-    console.warn("Supabase not configured — skipping fetchSections");
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("sections")
-    .select("*")
-    .eq("type", type)
-    .order("sort_order", { ascending: true });
-
-  if (error) {
-    console.error("Error fetching sections:", error);
-    return [];
-  }
-  return data ?? [];
-}
 
 /* ── Fetch Menu Items ─────────────────────────────────────────── */
 
