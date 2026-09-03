@@ -4,6 +4,7 @@ import { AdminProvider, useAdmin } from "@/lib/admin";
 import { fetchMenuItems } from "@/lib/menu-db";
 
 export const Route = createFileRoute("/admin/")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: () => (
     <AdminProvider>
       <AdminDashboard />
@@ -16,12 +17,14 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [cafeCount, setCafeCount] = useState(0);
   const [restCount, setRestCount] = useState(0);
+  const [dbStatus, setDbStatus] = useState<"checking" | "ok" | "error">("checking");
 
   const loadCounts = useCallback(async () => {
     const cafe = await fetchMenuItems("cafe");
     const rest = await fetchMenuItems("restaurant");
     setCafeCount(cafe.items.length);
     setRestCount(rest.items.length);
+    setDbStatus(cafe.failed || rest.failed ? "error" : "ok");
   }, []);
 
   useEffect(() => {
@@ -92,6 +95,37 @@ function AdminDashboard() {
           >
             Sign Out
           </button>
+        </div>
+      </div>
+
+      {/* Database status */}
+      <div className="mx-auto max-w-2xl px-4 pt-6">
+        <div
+          className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-xs font-medium"
+          style={{
+            border: "1px solid var(--border)",
+            background: "var(--card)",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{
+              background:
+                dbStatus === "ok"
+                  ? "oklch(0.5 0.15 145)"
+                  : dbStatus === "error"
+                    ? "oklch(0.55 0.2 25)"
+                    : "var(--muted-foreground)",
+            }}
+          />
+          <span>
+            {dbStatus === "ok" && `Database connected · ${cafeCount + restCount} items`}
+            {dbStatus === "error" &&
+              "Database unreachable — public menus may show saved data. Check Supabase config & connectivity."}
+            {dbStatus === "checking" && "Checking database…"}
+          </span>
         </div>
       </div>
 

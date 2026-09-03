@@ -4,6 +4,7 @@ import { AdminProvider, useAdmin } from "@/lib/admin";
 import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/admin/login")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: () => (
     <AdminProvider>
       <AdminLogin />

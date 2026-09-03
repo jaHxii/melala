@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
-import { fetchMenuItems, type DbSection, type DbMenuItem } from "@/lib/menu-db";
+import { fetchMenuItems, swapSectionOrder, type DbSection, type DbMenuItem } from "@/lib/menu-db";
 import { SectionEditor, AddSectionForm } from "@/components/admin/SectionEditor";
 
 export const Route = createFileRoute("/admin/restaurant")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   component: () => (
     <AdminProvider>
       <AdminRestaurant />
@@ -38,6 +39,17 @@ function AdminRestaurant() {
       loadData();
     }
   }, [user, loadData]);
+
+  const handleMoveSection = useCallback(
+    async (index: number, dir: -1 | 1) => {
+      const from = sections[index];
+      const to = sections[index + dir];
+      if (!from || !to) return;
+      const ok = await swapSectionOrder(from.id, to.id);
+      if (ok) loadData();
+    },
+    [sections, loadData],
+  );
 
   if (loading || !user) {
     return null;
@@ -101,12 +113,18 @@ function AdminRestaurant() {
           </div>
         ) : (
           <div className="space-y-4">
-            {sections.map((section) => (
+            {sections.map((section, index) => (
               <SectionEditor
                 key={section.id}
                 section={section}
                 items={items.filter((i) => i.section_id === section.id)}
                 onUpdate={loadData}
+                onMoveUp={index > 0 ? () => handleMoveSection(index, -1) : undefined}
+                onMoveDown={
+                  index < sections.length - 1 ? () => handleMoveSection(index, 1) : undefined
+                }
+                canMoveUp={index > 0}
+                canMoveDown={index < sections.length - 1}
               />
             ))}
             <AddSectionForm type="restaurant" onAdded={loadData} />

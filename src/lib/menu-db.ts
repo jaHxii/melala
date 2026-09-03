@@ -64,29 +64,49 @@ export async function fetchSections(type: MenuType): Promise<DbSection[]> {
 
 /* ── Fetch Menu Items ─────────────────────────────────────────── */
 
-export async function fetchMenuItems(
-  type: MenuType,
-): Promise<{ sections: DbSection[]; items: DbMenuItem[] }> {
-  const sections = await fetchSections(type);
+export type MenuFetchResult = {
+  sections: DbSection[];
+  items: DbMenuItem[];
+  /** true when the DB could not be reached (no client or a query error). */
+  failed: boolean;
+};
 
-  if (sections.length === 0) {
-    return { sections: [], items: [] };
+export async function fetchMenuItems(type: MenuType): Promise<MenuFetchResult> {
+  if (!supabase) {
+    console.warn("Supabase not configured — skipping fetchMenuItems");
+    return { sections: [], items: [], failed: true };
+  }
+
+  const { data: sections, error: sectionsError } = await supabase
+    .from("sections")
+    .select("*")
+    .eq("type", type)
+    .order("sort_order", { ascending: true });
+
+  if (sectionsError) {
+    console.error("Error fetching sections:", sectionsError);
+    return { sections: [], items: [], failed: true };
+  }
+
+  if (!sections || sections.length === 0) {
+    // An empty result is not a failure: the DB is simply unseeded.
+    return { sections: [], items: [], failed: false };
   }
 
   const sectionIds = sections.map((s) => s.id);
 
-  const { data: items, error } = await supabase
+  const { data: items, error: itemsError } = await supabase
     .from("menu_items")
     .select("*")
     .in("section_id", sectionIds)
     .order("sort_order", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching menu items:", error);
-    return { sections, items: [] };
+  if (itemsError) {
+    console.error("Error fetching menu items:", itemsError);
+    return { sections, items: [], failed: true };
   }
 
-  return { sections, items: items ?? [] };
+  return { sections, items: items ?? [], failed: false };
 }
 
 /* ── Transform to MenuSection[] (for public menu components) ──── */
@@ -132,6 +152,15 @@ export async function createSection(
   const cleanNameAm = sanitize(nameAm);
   if (!cleanNameEn) return null;
 
+  // Reject duplicate section names within the same menu type
+  const { data: duplicate } = await supabase
+    .from("sections")
+    .select("id")
+    .eq("type", type)
+    .eq("name_en", cleanNameEn)
+    .maybeSingle();
+  if (duplicate) return null;
+
   // Get max sort_order
   const { data: existing } = await supabase
     .from("sections")
@@ -172,9 +201,27 @@ export async function updateSection(
   if (updates.name_en !== undefined) clean.name_en = sanitize(updates.name_en);
   if (updates.name_am !== undefined) clean.name_am = sanitize(updates.name_am);
   if (updates.sort_order !== undefined) clean.sort_order = updates.sort_order;
-  if (!clean.name_en) return false;
+  if (clean.name_en !== undefined && !clean.name_en) return false;
 
   const { error } = await supabase.from("sections").update(clean).eq("id", id);
+  return !error;
+}
+
+/** Swap two sections' sort_order values (used by admin reordering). */
+export async function swapSectionOrder(idA: string, idB: string): Promise<boolean> {
+  if (!supabase) return false;
+  const { data } = await supabase.from("sections").select("id, sort_order").in("id", [idA, idB]);
+  if (!data || data.length !== 2) return false;
+  const a = data.find((row) => row.id === idA);
+  const b = data.find((row) => row.id === idB);
+  if (!a || !b) return false;
+  const { error } = await supabase.from("sections").upsert(
+    [
+      { id: idA, sort_order: b.sort_order },
+      { id: idB, sort_order: a.sort_order },
+    ],
+    { onConflict: "id" },
+  );
   return !error;
 }
 
@@ -205,7 +252,7 @@ export async function createMenuItem(
   if (!supabase) return null;
 
   const cleanNameEn = sanitize(item.name_en);
-  if (!cleanNameEn || item.price < 0) return null;
+  if (!cleanNameEn || !Number.isFinite(item.price) || item.price < 0) return null;
 
   // Get max sort_order for this section
   const { data: existing } = await supabase
@@ -264,8 +311,29 @@ export async function updateMenuItem(
   if (updates.available !== undefined) clean.available = updates.available;
   if (updates.sort_order !== undefined) clean.sort_order = updates.sort_order;
   if (clean.name_en !== undefined && !clean.name_en) return false;
+  if (updates.price !== undefined && (!Number.isFinite(updates.price) || updates.price < 0)) {
+    return false;
+  }
 
   const { error } = await supabase.from("menu_items").update(clean).eq("id", id);
+  return !error;
+}
+
+/** Swap two items' sort_order values (used by admin reordering). */
+export async function swapMenuItemOrder(idA: string, idB: string): Promise<boolean> {
+  if (!supabase) return false;
+  const { data } = await supabase.from("menu_items").select("id, sort_order").in("id", [idA, idB]);
+  if (!data || data.length !== 2) return false;
+  const a = data.find((row) => row.id === idA);
+  const b = data.find((row) => row.id === idB);
+  if (!a || !b) return false;
+  const { error } = await supabase.from("menu_items").upsert(
+    [
+      { id: idA, sort_order: b.sort_order },
+      { id: idB, sort_order: a.sort_order },
+    ],
+    { onConflict: "id" },
+  );
   return !error;
 }
 

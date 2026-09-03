@@ -1,14 +1,49 @@
 # Melala Cafe & Restaurant
 
 Digital menu and payment website for Melala Cafe & Restaurant in Addis Ababa, Ethiopia.
+Customers scan a table QR code → menu page (`/cafe` or `/restaurant`) → pay by scanning
+Telebirr / CBE / Bank of Abyssinia QR codes on `/payment`.
+
+Live site: **https://melala.netlify.app**
 
 ## Tech Stack
 
-- React 19 + TanStack Router (file-based routing)
-- Tailwind CSS 4 + custom utility classes
-- Vite + Nitro (Cloudflare Workers → Netlify SSR)
-- Dark mode support (system preference + manual toggle)
-- Bilingual: English / Amharic
+- React 19 + TanStack Router/Start (file-based routing, SSR)
+- Tailwind CSS 4 + custom utility classes in `src/styles.css`
+- Vite 8 + Nitro (Netlify SSR via the `netlify` nitro preset)
+- Supabase (Postgres): `sections` + `menu_items` tables, RLS, email/password auth for admin
+- Dark mode + bilingual English/Amharic
+- PWA: service worker (`public/sw.js`), manifest, offline page
+
+## Routes
+
+| Route               | Description                          |
+| ------------------- | ------------------------------------ |
+| `/`                 | Home page with business info         |
+| `/cafe`             | Cafe menu (QR entry point)           |
+| `/restaurant`       | Restaurant menu (QR entry point)     |
+| `/payment`          | Payment QR codes                     |
+| `/admin/login`      | Admin sign-in (Supabase auth)        |
+| `/admin`            | Admin dashboard                      |
+| `/admin/cafe`       | Edit the cafe menu                   |
+| `/admin/restaurant` | Edit the restaurant menu             |
+
+Menu pages read from Supabase and fall back to the last good cached menu
+(localStorage) or the bundled data files (`src/data/*.ts`) when the DB is
+unreachable. Admin routes are `noindex`.
+
+## Environment
+
+Copy `.env.example` to `.env`:
+
+| Variable                          | Public? | Purpose                                    |
+| --------------------------------- | ------- | ------------------------------------------ |
+| `VITE_SUPABASE_URL`               | yes     | Supabase project URL                       |
+| `VITE_SUPABASE_ANON_KEY`          | yes     | Publishable key (RLS blocks writes)        |
+| `VITE_SUPABASE_SERVICE_ROLE_KEY`  | no      | Local seed/migration scripts only          |
+
+On Netlify, set `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` as build
+environment variables (they do **not** need to be marked as secrets).
 
 ## Development
 
@@ -17,52 +52,38 @@ npm install
 npm run dev
 ```
 
-## Commands
+Other commands: `npm run build`, `npm run lint`, `npm run format`, `npm run preview`.
+
+## Database setup
+
+Schema + RLS live in `supabase/migrations/` — apply them in the Supabase SQL
+editor (or `supabase db push`). Full steps: **docs/SUPABASE_SETUP.md**.
+
+Seed the DB from the bundled menu data (idempotent):
 
 ```sh
-npm run dev       # Dev server
-npm run build     # Production build
-npm run lint      # ESLint
-npm run format    # Prettier
+npx tsx scripts/seed-menu.ts            # upsert
+npx tsx scripts/seed-menu.ts --dry-run  # preview
+npx tsx scripts/seed-menu.ts --reset    # wipe + reseed
 ```
-
-## Routes
-
-| Route         | Description                      |
-| ------------- | -------------------------------- |
-| `/`           | Home page with business info     |
-| `/cafe`       | Cafe menu (QR entry point)       |
-| `/restaurant` | Restaurant menu (QR entry point) |
-| `/payment`    | Payment QR codes                 |
-
-## Design System
-
-Custom Tailwind utilities defined in `src/styles.css`:
-
-- **Buttons:** `btn-primary`, `btn-secondary`, `btn-outline`
-- **Cards:** `card-hover`, `card-hover-lift`, `menu-item-card`
-- **Typography:** `section-heading`, `display-title`, `tracking-widget`, `font-display`, `font-ethiopic`
-- **Effects:** `bg-grain`, `glass`, `text-gradient-brand`, `animate-shimmer`
-- **Accessibility:** `focus-ring`, `sr-only`
-
-Colors use `oklch()` format (Tailwind 4 requirement). Dark mode via `.dark` class on `<html>`.
-
-## Fonts
-
-- **Fraunces** — display headings
-- **Inter** — body text
-- **Noto Sans Ethiopic** — Amharic text
 
 ## Deployment
 
-Builds to Cloudflare Workers via Nitro. Deploy with:
+Pushing to `main` triggers a Netlify build (`netlify.toml`: `npm run build`,
+publish `dist`). Netlify CI builds with the `netlify` nitro preset and
+publishes the SSR function. `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` are
+whitelisted from Netlify secret scanning because they are public values that
+Vite inlines into the bundle.
 
-```sh
-npm run build
-npx nitro deploy --prebuilt
-```
+SSR intentionally uses the non-streaming renderer (`defaultRenderHandler` in
+`src/server.ts`): Netlify functions truncate TanStack Start's progressive HTML
+stream, so pages are rendered as one complete response instead.
 
-## Environment
+## Design & conventions
 
-- Prices in ETB (Ethiopian Birr)
-- Domain: `melala.netlify.app`
+See **AGENTS.md** for conventions (oklch colors, i18n keys, generated
+`routeTree.gen.ts`, `@/*` alias, etc.).
+
+## Handover
+
+Owner guide, runbooks, and the pre-launch QA checklist: **docs/HANDOVER.md**.

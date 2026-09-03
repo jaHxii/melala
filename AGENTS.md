@@ -70,9 +70,10 @@ Custom `@utility` classes in `styles.css`:
 
 ## Deployment
 
-- Push to `main` triggers Netlify build.
-- Build command: `npm run build`
-- Node 20 required (`.nvmrc` + `netlify.toml`).
+- Push to `main` triggers Netlify build (`netlify.toml`: `npm run build`, `publish = "dist"`).
+- Netlify CI builds with the nitro `netlify` preset (the lovable config wrapper defaults to `cloudflare-module` locally — pass `NITRO_PRESET=netlify npm run build` to reproduce the Netlify output locally).
+- `netlify.toml [build.environment]` whitelists `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` from secret scanning (public values inlined by Vite).
+- **SSR uses the non-streaming renderer** (`defaultRenderHandler` in `src/server.ts`): Netlify functions truncate TanStack Start's progressive HTML stream, so pages rendered as empty `<template>` shells. `renderRouterToString` emits one complete response.
 - If build fails with "Deploy directory does not exist", verify `netlify.toml` has `publish = "dist"` (not `.output/public`).
 
 ## Root Layout (`__root.tsx`)
@@ -89,10 +90,17 @@ Custom `@utility` classes in `styles.css`:
 - Payment page reads `from` search param via `Route.useSearch()`.
 - "Back to Menu" links to `/cafe` or `/restaurant` accordingly.
 
+## Supabase & Admin
+
+- `src/lib/supabase.ts` exports a client or `null` when env vars are missing — consumers guard on null (never crash SSR).
+- `src/lib/menu-db.ts`: typed fetch/CRUD + `toMenuSections` mapping + swap helpers for admin reordering. Public menu pages hydrate from DB and cache the last good payload in `localStorage` via `src/lib/menu-cache.ts`.
+- Admin pages are `noindex`; the site is anonymous-read/authenticated-write under RLS (see `supabase/migrations/` and `docs/SUPABASE_SETUP.md`).
+- Editing is via Supabase Auth email/password at `/admin/login`. There is no app-level role system.
+
 ## QR Codes
 
-- Real images in `public/`: `qr-telebirr.png`, `qr-cbe-bir.png`, `qr-coopay.png` (used on payment page).
-- Generated marketing QR codes in repo root: `qr-cafe.png`, `qr-restaurant.png` (1024×1024, error correction H).
+- Payment QR images in `public/`: `qr-telebirr.jpg`, `qr-cbe-bir.png`, `qr-abyssinia.png` — referenced from `src/data/paymentMethods.ts` (the source of truth for accounts + logos).
+- Generated marketing QR codes in repo root: `qr-cafe.png`, `qr-restaurant.png` (1024×1024, error correction H) — not used by the site.
 
 ## Git
 
@@ -101,7 +109,8 @@ Custom `@utility` classes in `styles.css`:
 
 ## Common Gotchas
 
-- **Nitro preset**: `@lovable.dev/vite-tanstack-config` hardcodes `cloudflare-module` internally; `vite.config.ts` override to `netlify` works but the wrapper may ignore it. If SSR breaks on Netlify, check build log for `[nitro] Building (preset: netlify)`.
+- **Nitro preset**: `@lovable.dev/vite-tanstack-config` defaults to `cloudflare-module`; `vite.config.ts` `tanstackStart.nitro.preset` is ignored (it must be top-level `nitro`), so Netlify relies on its CI env selecting `netlify`. Locally, build with `NITRO_PRESET=netlify npm run build` and inspect `.netlify/functions-internal/`.
+- **SSR streaming**: Netlify truncates TanStack Start's progressive stream (pages arrive as empty `<template>` shells). `src/server.ts` must keep using `defaultRenderHandler` (non-streaming) — don't switch back to `defaultStreamHandler`.
 - **Bun broken on Windows** — use `npm` for all commands.
 - **Service worker** in `__root.tsx` registers `sw.js` only in production.
 - **`routeTree.gen.ts`** regenerates on dev server start; manual edits lost.
@@ -112,17 +121,23 @@ Custom `@utility` classes in `styles.css`:
 
 ```
 src/
-  routes/           # TanStack file-based routes
-  components/       # Shared UI (menu.tsx, LanguageToggle.tsx)
-  lib/              # translations, language context, constants, error-tracking
+  routes/           # TanStack file-based routes (public + admin/)
+  components/       # Shared UI + admin editors (components/admin/)
+  lib/              # translations, language, constants, error-tracking,
+                    # supabase, menu-db, menu-cache, admin (auth provider)
   hooks/            # useInView, useParallax
-  data/             # cafeMenu, restaurantMenu, paymentMethods
-  styles.css        # Design system (oklch colors), dark mode, animations, print styles, bg pattern
-  server.ts         # Nitro server entry
+  data/             # cafeMenu, restaurantMenu, paymentMethods (fallback data)
+  styles.css        # Design system (oklch colors), dark mode, animations
+  server.ts         # Nitro server entry (non-streaming SSR renderer)
 public/
-  *.png             # Logo, favicon, payment QR codes
+  *.png/*.jpg/webp  # Logos, favicon, payment QR codes
   manifest.json, sw.js, offline.html, _headers, sitemap.xml, robots.txt
-netlify.toml        # Build + deploy config
+scripts/
+  seed-menu.ts      # Idempotent DB seed (--reset, --dry-run, --type=)
+supabase/
+  migrations/       # Schema + RLS SQL (apply via dashboard or CLI)
+docs/               # SUPABASE_SETUP.md, HANDOVER.md (owner guide + QA)
+netlify.toml        # Build + deploy config (+ secret-scan whitelist)
 vite.config.ts      # TanStack Start + Nitro config (via lovable wrapper)
 tsconfig.json       # TS config + path aliases
 ```

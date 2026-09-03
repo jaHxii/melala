@@ -4,6 +4,7 @@ import { MenuGrid, MenuHeader, CategoryFilter, StickyPayButton } from "@/compone
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
+import { readMenuCache, writeMenuCache } from "@/lib/menu-cache";
 import { restaurantMenu } from "@/data/restaurantMenu";
 
 export const Route = createFileRoute("/restaurant")({
@@ -37,11 +38,23 @@ function RestaurantMenuPage() {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [menuSections, setMenuSections] = useState<MenuSection[]>(restaurantMenu);
+  const [stale, setStale] = useState(false);
 
   const loadMenu = useCallback(async () => {
-    const { sections, items } = await fetchMenuItems("restaurant");
-    if (sections.length > 0) {
-      setMenuSections(toMenuSections(sections, items));
+    const result = await fetchMenuItems("restaurant");
+    if (result.failed) {
+      // DB unreachable: fall back to the last saved menu, flagged as stale.
+      const cached = readMenuCache("restaurant");
+      if (cached && cached.sections.length > 0) {
+        setMenuSections(toMenuSections(cached.sections, cached.items));
+        setStale(true);
+      }
+      return;
+    }
+    setStale(false);
+    if (result.sections.length > 0) {
+      writeMenuCache("restaurant", result.sections, result.items);
+      setMenuSections(toMenuSections(result.sections, result.items));
     }
   }, []);
 
@@ -58,6 +71,30 @@ function RestaurantMenuPage() {
           lightLogo="/rest-light-logo.jpg"
           darkLogo="/rest-dark-logo.jpg"
         />
+        {stale && (
+          <div
+            role="status"
+            className="mx-auto mt-4 flex w-full max-w-md items-center gap-3 rounded-xl border px-4 py-2.5 text-xs"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--card)",
+              color: "var(--muted-foreground)",
+            }}
+          >
+            <span className="flex-1">{t("menuStaleNotice")}</span>
+            <button
+              type="button"
+              onClick={loadMenu}
+              className="shrink-0 rounded-lg px-3 py-1 text-[11px] font-bold transition-all active:scale-95"
+              style={{
+                background: "var(--brand)",
+                color: "var(--brand-foreground)",
+              }}
+            >
+              {t("menuRefresh")}
+            </button>
+          </div>
+        )}
         <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
           {t("allPricesInEtb")}
         </p>

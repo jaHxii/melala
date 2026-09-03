@@ -5,9 +5,20 @@ import { updateMenuItem, deleteMenuItem } from "@/lib/menu-db";
 type ItemEditorProps = {
   item: DbMenuItem;
   onUpdate: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 };
 
-export function ItemEditor({ item, onUpdate }: ItemEditorProps) {
+export function ItemEditor({
+  item,
+  onUpdate,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
+}: ItemEditorProps) {
   const [editing, setEditing] = useState(false);
   const [nameEn, setNameEn] = useState(item.name_en);
   const [nameAm, setNameAm] = useState(item.name_am ?? "");
@@ -262,6 +273,56 @@ export function ItemEditor({ item, onUpdate }: ItemEditorProps) {
         background: success ? "oklch(0.5 0.15 145 / 0.05)" : "var(--background)",
       }}
     >
+      {(onMoveUp || onMoveDown) && (
+        <div className="flex shrink-0 flex-col gap-0.5">
+          <button
+            type="button"
+            onClick={onMoveUp}
+            disabled={!canMoveUp}
+            aria-label={`Move ${item.name_en} up`}
+            title="Move up"
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={onMoveDown}
+            disabled={!canMoveDown}
+            aria-label={`Move ${item.name_en} down`}
+            title="Move down"
+            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-semibold" style={{ color: "var(--foreground)" }}>

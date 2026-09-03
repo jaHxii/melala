@@ -1,15 +1,27 @@
 import { useState, useCallback, type FormEvent } from "react";
 import type { DbSection, DbMenuItem } from "@/lib/menu-db";
-import { updateSection, deleteSection, createSection } from "@/lib/menu-db";
+import { updateSection, deleteSection, createSection, swapMenuItemOrder } from "@/lib/menu-db";
 import { ItemEditor, AddItemForm } from "./ItemEditor";
 
 type SectionEditorProps = {
   section: DbSection;
   items: DbMenuItem[];
   onUpdate: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 };
 
-export function SectionEditor({ section, items, onUpdate }: SectionEditorProps) {
+export function SectionEditor({
+  section,
+  items,
+  onUpdate,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
+}: SectionEditorProps) {
   const [editing, setEditing] = useState(false);
   const [nameEn, setNameEn] = useState(section.name_en);
   const [nameAm, setNameAm] = useState(section.name_am ?? "");
@@ -55,6 +67,21 @@ export function SectionEditor({ section, items, onUpdate }: SectionEditorProps) 
     setEditing(false);
     setError("");
   }, [section]);
+
+  const handleMoveItem = useCallback(
+    async (index: number, dir: 1 | -1) => {
+      const current = items[index];
+      const other = items[index + dir];
+      if (!current || !other) return;
+      const ok = await swapMenuItemOrder(current.id, other.id);
+      if (ok) {
+        onUpdate();
+      } else {
+        setError("Failed to reorder. Are you logged in?");
+      }
+    },
+    [items, onUpdate],
+  );
 
   return (
     <div
@@ -168,6 +195,62 @@ export function SectionEditor({ section, items, onUpdate }: SectionEditorProps) 
               {items.length}
             </span>
             <div className="flex shrink-0 gap-1">
+              {onMoveUp && (
+                <button
+                  type="button"
+                  onClick={onMoveUp}
+                  disabled={!canMoveUp}
+                  aria-label={`Move section ${section.name_en} up`}
+                  title="Move section up"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+                  style={{
+                    border: "1px solid var(--border)",
+                    color: "var(--muted-foreground)",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m18 15-6-6-6 6" />
+                  </svg>
+                </button>
+              )}
+              {onMoveDown && (
+                <button
+                  type="button"
+                  onClick={onMoveDown}
+                  disabled={!canMoveDown}
+                  aria-label={`Move section ${section.name_en} down`}
+                  title="Move section down"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+                  style={{
+                    border: "1px solid var(--border)",
+                    color: "var(--muted-foreground)",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -192,17 +275,19 @@ export function SectionEditor({ section, items, onUpdate }: SectionEditorProps) 
                   Delete
                 </button>
               ) : (
-                <div className="flex gap-1.5">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={handleDelete}
+                    aria-label={`Delete section ${section.name_en} and its ${items.length} item(s) — this cannot be undone`}
+                    title={`Deletes this section and all ${items.length} item(s) inside it`}
                     className="rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-all active:scale-95"
                     style={{
                       background: "oklch(0.55 0.2 25)",
                       boxShadow: "0 2px 8px -2px oklch(0.55 0.2 25 / 0.5)",
                     }}
                   >
-                    Delete
+                    Delete {items.length > 0 ? `(${items.length})` : ""}
                   </button>
                   <button
                     type="button"
@@ -239,8 +324,16 @@ export function SectionEditor({ section, items, onUpdate }: SectionEditorProps) 
       {/* Items */}
       {!collapsed && (
         <div className="space-y-2 p-3">
-          {items.map((item) => (
-            <ItemEditor key={item.id} item={item} onUpdate={onUpdate} />
+          {items.map((item, index) => (
+            <ItemEditor
+              key={item.id}
+              item={item}
+              onUpdate={onUpdate}
+              onMoveUp={index > 0 ? () => handleMoveItem(index, -1) : undefined}
+              onMoveDown={index < items.length - 1 ? () => handleMoveItem(index, 1) : undefined}
+              canMoveUp={index > 0}
+              canMoveDown={index < items.length - 1}
+            />
           ))}
           <AddItemForm sectionId={section.id} onAdded={onUpdate} />
         </div>
