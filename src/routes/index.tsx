@@ -5,7 +5,8 @@ import { useParallax } from "@/hooks/use-parallax";
 import { useInView } from "@/hooks/use-in-view";
 import { useLanguage } from "@/lib/language";
 
-const GOOGLE_MAPS_LINK = "https://maps.google.com/maps?q=2RHP+VCW,+Addis+Ababa";
+const GOOGLE_MAPS_LINK =
+  "https://www.google.com/maps/search/?api=1&query=9.02969740292859%2C38.835985388113656";
 const WHATSAPP_LINK = "https://wa.me/251911609157";
 const PHONE = "+251911609157";
 
@@ -24,8 +25,8 @@ const structuredData = {
   },
   geo: {
     "@type": "GeoCoordinates",
-    latitude: "9.029689518033686",
-    longitude: "38.83598120219571",
+    latitude: "9.02969740292859",
+    longitude: "38.835985388113656",
   },
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
@@ -162,7 +163,6 @@ function Home() {
             <br />
             Yeka sub-city, Addis Ababa
           </p>
-          <p className="mt-1 text-sm text-foreground/60">{t("plusCode")}</p>
         </div>
       </section>
     </div>

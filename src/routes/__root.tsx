@@ -124,7 +124,6 @@ function HomeFooter() {
                 Visit
               </h2>
               <ul className="mt-3 space-y-1.5">
-                <li>2RHP+VCW, Addis Ababa, Ethiopia</li>
                 <li>7:00 AM – 10:00 PM daily</li>
               </ul>
             </div>
