@@ -14,10 +14,13 @@ Open **SQL Editor** and run the files in order (each is safe to re-run):
 
 1. `supabase/migrations/0001_create_tables.sql`
 2. `supabase/migrations/0002_updated_at_and_rls.sql`
+3. `supabase/migrations/0003_payment_methods.sql`
 
 If the tables already existed before these files were written, `0002` still
 enables RLS + policies for them — run it even if `0001` reports "already
-exists".
+exists". `0003` creates the `payment_methods` table (client-editable from the
+admin panel), the public `payment-assets` storage bucket for uploaded QR/logo
+images, and seeds the three current methods (insert-only, never overwrites).
 
 ## 3. Verify RLS
 

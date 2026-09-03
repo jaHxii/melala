@@ -2,10 +2,13 @@
  * Seed/migrate the Supabase database from the bundled hardcoded menu data.
  *
  * Usage:
- *   npx tsx scripts/seed-menu.ts                 # upsert (safe to re-run)
- *   npx tsx scripts/seed-menu.ts --reset         # wipe + reseed the menu
+ *   npx tsx scripts/seed-menu.ts                 # upsert menus + insert payment methods
+ *   npx tsx scripts/seed-menu.ts --reset         # wipe + reseed the menus
  *   npx tsx scripts/seed-menu.ts --dry-run       # show what WOULD change
- *   npx tsx scripts/seed-menu.ts --type=cafe     # only the cafe menu
+ *   npx tsx scripts/seed-menu.ts --type=cafe     # only the cafe menu (payments skipped)
+ *
+ * Payment methods are insert-only: an existing name is never overwritten, so
+ * edits made in the admin panel survive re-seeding.
  *
  * Prerequisites:
  *   - .env with VITE_SUPABASE_URL and VITE_SUPABASE_SERVICE_ROLE_KEY
@@ -24,6 +27,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { cafeMenu } from "../src/data/cafeMenu.js";
 import { restaurantMenu } from "../src/data/restaurantMenu.js";
+import { paymentMethods } from "../src/data/paymentMethods.js";
 
 // Load env from .env file (plain parser so this runs without dotenv)
 import { readFileSync } from "fs";
@@ -203,6 +207,70 @@ async function main(): Promise<void> {
     await seedMenu("cafe", cafeMenu);
     await seedMenu("restaurant", restaurantMenu);
   }
+
+  console.log(
+    `\n=== Done. ${dryRun ? "WOULD" : "Did"} insert ${planInserts} row(s), update ${planUpdates} row(s). ===`,
+  );
+}
+
+/**
+ * Seed payment methods — insert-only (never overwrite a name the client may
+ * have edited in the admin). Run explicitly with --payments.
+ */
+async function seedPayments(): Promise<void> {
+  console.log("\nSeeding payment methods…");
+  let inserted = 0;
+  let skipped = 0;
+
+  for (let i = 0; i < paymentMethods.length; i++) {
+    const m = paymentMethods[i]!;
+    const { data: existing } = await supabase
+      .from("payment_methods")
+      .select("id")
+      .eq("name", m.name)
+      .maybeSingle();
+
+    if (existing) {
+      skipped += 1;
+      console.log(`  ~ Exists, keeping DB values: ${m.name}`);
+      continue;
+    }
+
+    inserted += 1;
+    console.log(`  + New method: ${m.name}`);
+    if (dryRun) continue;
+
+    const { error } = await supabase.from("payment_methods").insert({
+      name: m.name,
+      detail: m.detail,
+      account: m.account,
+      account_name_en: m.accountName,
+      account_name_am: m.accountNameAm,
+      image_url: m.image,
+      logo_url: m.logo,
+      sort_order: i,
+      enabled: true,
+    });
+    if (error) throw new Error(`Failed inserting payment method "${m.name}": ${error.message}`);
+  }
+  console.log(
+    `  ✓ payments: ${dryRun ? "would insert" : "inserted"} ${inserted}, ${skipped} already present`,
+  );
+}
+
+async function main(): Promise<void> {
+  console.log(
+    `=== Melala Menu ${reset ? "reset & " : ""}seed === (${dryRun ? "DRY RUN — no writes" : "live"})`,
+  );
+
+  if (onlyType && onlyType === "cafe") await seedMenu("cafe", cafeMenu);
+  else if (onlyType && onlyType === "restaurant") await seedMenu("restaurant", restaurantMenu);
+  else {
+    await seedMenu("cafe", cafeMenu);
+    await seedMenu("restaurant", restaurantMenu);
+  }
+
+  if (!onlyType) await seedPayments();
 
   console.log(
     `\n=== Done. ${dryRun ? "WOULD" : "Did"} insert ${planInserts} row(s), update ${planUpdates} row(s). ===`,

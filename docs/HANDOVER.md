@@ -14,8 +14,10 @@ checklist that must pass before calling the project finished.
   - Deleting a section warns you and removes all its items
 - **Menu data** lives in Supabase. When the database is unreachable, menu
   pages show the last saved menu (flagged with a notice) rather than breaking.
-- **Payment QRs** are static images in the repo (`public/qr-*.png|jpg`) wired
-  to real accounts in `src/data/paymentMethods.ts`.
+- **Payment methods** are managed from the admin (`/admin/payments`): names,
+  account numbers, owner names, QR + logo images, show/hide, and order. The
+  `/payment` page shows the saved methods (with a last-saved fallback if the
+  database is unreachable).
 
 ## Day-to-day
 
@@ -36,6 +38,20 @@ public menu but stays saved.
 Use the dashed **+ Add Section** / **+ Add Item** buttons at the bottom of the
 admin pages. New entries appear at the end of the list — reorder with the
 arrows.
+
+### Manage payment methods
+Open **Admin → Payment Methods**. You can:
+- **Edit** a method's name, description, account number, or owner name.
+- **Replace the QR or logo image** — upload the official image saved from the
+  bank/app. Never generate a QR yourself; upload the real code so it always
+  matches the account.
+- **Hide / show** a method with the toggle (hidden methods disappear from
+  `/payment` but stay saved).
+- **Reorder** methods with the ↑/↓ arrows — the first one is the default
+  when the customer opens `/payment`.
+- **Delete** a method (with confirmation).
+
+Changes appear on `/payment` immediately after a refresh.
 
 ## Critical checks before launch (must all pass)
 

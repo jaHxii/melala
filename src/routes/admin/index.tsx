@@ -196,6 +196,34 @@ function AdminDashboard() {
               Starters, mains, pizza, pasta, desserts
             </p>
           </Link>
+
+          <Link
+            to="/admin/payments"
+            className="group relative overflow-hidden rounded-2xl p-6 transition-all hover:shadow-lg"
+            style={{
+              border: "1px solid var(--border)",
+              background: "var(--card)",
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-4xl">💳</span>
+              <span
+                className="rounded-full px-3 py-1 text-xs font-bold"
+                style={{
+                  background: "oklch(0.54 0.15 34 / 0.1)",
+                  color: "var(--brand)",
+                }}
+              >
+                Methods
+              </span>
+            </div>
+            <h2 className="text-lg font-bold" style={{ color: "var(--foreground)" }}>
+              Payment Methods
+            </h2>
+            <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
+              Names, accounts, QR codes, logos, order
+            </p>
+          </Link>
         </div>
       </div>
     </div>

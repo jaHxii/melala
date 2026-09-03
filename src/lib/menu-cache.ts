@@ -1,4 +1,5 @@
 import type { DbSection, DbMenuItem, MenuType } from "./menu-db";
+import type { DbPaymentMethod } from "./payment-db";
 
 /**
  * Last-known-good menu snapshot so QR menu pages can still show a menu when
@@ -36,6 +37,40 @@ export function readMenuCache(type: MenuType): MenuCacheEntry | null {
     return {
       sections: parsed.sections,
       items: parsed.items,
+      savedAt: typeof parsed.savedAt === "number" ? parsed.savedAt : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/* ── Payment methods cache (same last-known-good pattern) ─────── */
+
+export type PaymentCacheEntry = {
+  methods: DbPaymentMethod[];
+  savedAt: number;
+};
+
+const PAYMENT_KEY = "melala-payments-v1";
+
+export function writePaymentCache(methods: DbPaymentMethod[]): void {
+  if (methods.length === 0) return;
+  try {
+    const entry: PaymentCacheEntry = { methods, savedAt: Date.now() };
+    localStorage.setItem(PAYMENT_KEY, JSON.stringify(entry));
+  } catch {
+    // Storage full or unavailable — caching is best-effort.
+  }
+}
+
+export function readPaymentCache(): PaymentCacheEntry | null {
+  try {
+    const raw = localStorage.getItem(PAYMENT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PaymentCacheEntry>;
+    if (!Array.isArray(parsed.methods)) return null;
+    return {
+      methods: parsed.methods,
       savedAt: typeof parsed.savedAt === "number" ? parsed.savedAt : 0,
     };
   } catch {

@@ -97,9 +97,17 @@ Custom `@utility` classes in `styles.css`:
 - Admin pages are `noindex`; the site is anonymous-read/authenticated-write under RLS (see `supabase/migrations/` and `docs/SUPABASE_SETUP.md`).
 - Editing is via Supabase Auth email/password at `/admin/login`. There is no app-level role system.
 
-## QR Codes
+## Payment Methods
 
-- Payment QR images in `public/`: `qr-telebirr.jpg`, `qr-cbe-bir.png`, `qr-abyssinia.png` — referenced from `src/data/paymentMethods.ts` (the source of truth for accounts + logos).
+- Payment methods are DB-driven (`payment_methods` table, migration `0003`):
+  names, accounts, owner names, QR/logo image URLs, `enabled`, `sort_order`.
+  Client edits them at `/admin/payments` (upload images to the `payment-assets`
+  storage bucket). `src/lib/payment-db.ts` is the fetch/CRUD/upload layer;
+  `src/data/paymentMethods.ts` is the bundled fallback + seed source.
+- The bundled QR/logo images in `public/` (`qr-telebirr.jpg`, `qr-cbe-bir.png`,
+  `qr-abyssinia.png`, `*_logo.*`) remain as the seeded URLs — re-uploading in
+  the admin replaces them with storage URLs. Never auto-generate QRs from
+  account numbers; formats are proprietary per provider.
 
 ## Git
 
@@ -122,7 +130,7 @@ src/
   routes/           # TanStack file-based routes (public + admin/)
   components/       # Shared UI + admin editors (components/admin/)
   lib/              # translations, language, constants, error-tracking,
-                    # supabase, menu-db, menu-cache, admin (auth provider)
+                    # supabase, menu-db, payment-db, menu-cache, admin (auth provider)
   hooks/            # useInView, useParallax
   data/             # cafeMenu, restaurantMenu, paymentMethods (fallback data)
   styles.css        # Design system (oklch colors), dark mode, animations

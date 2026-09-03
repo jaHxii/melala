@@ -24,6 +24,7 @@ export const translations = {
     showConfirmation: "Please show your payment confirmation to a member of staff",
     accountOwner: "Account Owner Name",
     menuStaleNotice: "Showing saved menu — we couldn't refresh it. Pull to retry.",
+    paymentStaleNotice: "Showing saved payment options — we couldn't refresh them.",
     menuRefresh: "Refresh",
 
     english: "English",
@@ -52,6 +53,7 @@ export const translations = {
     showConfirmation: "እባክዎ የክፍያ ማረጋገጫዎን ለሠራተኛ ያሳዩ",
     accountOwner: "የአካውንቱ ባለቤት ስም",
     menuStaleNotice: "የተቀመጠ ዝርዝር እየታየ ነው — ማደስ አልተቻለም። ለማደስ ይሞክሩ።",
+    paymentStaleNotice: "የተቀመጡ የክፍያ አማራጮች እየታዩ ነው — ማደስ አልተቻለም።",
     menuRefresh: "አድስ",
     developedBy: "Developed by",
     language: "ቋንቋ",

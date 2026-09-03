@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
 import { paymentMethods } from "@/data/paymentMethods";
+import { fetchPaymentMethods, toPaymentMethods, type PaymentMethod } from "@/lib/payment-db";
+import { readPaymentCache, writePaymentCache } from "@/lib/menu-cache";
 import { SectionBadge } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
@@ -117,9 +119,33 @@ function PaymentPage() {
   const { from } = Route.useSearch();
 
   const menuPath = from === "restaurant" ? "/restaurant" : "/cafe";
+  const [methods, setMethods] = useState<PaymentMethod[]>(paymentMethods);
+  const [stale, setStale] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [zoomMethod, setZoomMethod] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const loadMethods = useCallback(async () => {
+    const result = await fetchPaymentMethods();
+    if (result.failed) {
+      // DB unreachable: fall back to the last saved methods, flagged as stale.
+      const cached = readPaymentCache();
+      if (cached && cached.methods.length > 0) {
+        setMethods(toPaymentMethods(cached.methods));
+        setStale(true);
+      }
+      return;
+    }
+    setStale(false);
+    if (result.methods.length > 0) {
+      writePaymentCache(result.methods);
+      setMethods(toPaymentMethods(result.methods));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMethods();
+  }, [loadMethods]);
 
   const handleSelect = useCallback((name: string) => {
     try {
@@ -138,7 +164,7 @@ function PaymentPage() {
     }
   }, []);
 
-  const selected = paymentMethods.find((m) => m.name === selectedMethod);
+  const selected = methods.find((m) => m.name === selectedMethod);
 
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -160,10 +186,35 @@ function PaymentPage() {
       <h1 className="section-heading text-center">{t("paymentTitle")}</h1>
       <p className="mt-4 text-center text-sm text-muted-foreground">{t("paymentDescription")}</p>
 
+      {stale && (
+        <div
+          role="status"
+          className="mt-4 flex w-full max-w-md items-center gap-3 rounded-xl border px-4 py-2.5 text-xs"
+          style={{
+            borderColor: "var(--border)",
+            background: "var(--card)",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          <span className="flex-1">{t("paymentStaleNotice")}</span>
+          <button
+            type="button"
+            onClick={loadMethods}
+            className="shrink-0 rounded-lg px-3 py-1 text-[11px] font-bold transition-all active:scale-95"
+            style={{
+              background: "var(--brand)",
+              color: "var(--brand-foreground)",
+            }}
+          >
+            {t("menuRefresh")}
+          </button>
+        </div>
+      )}
+
       {/* Step 1: Select payment method */}
       {!selectedMethod && (
         <div className="mt-12 grid w-full max-w-md gap-4">
-          {paymentMethods.map((method) => (
+          {methods.map((method) => (
             <button
               key={method.name}
               type="button"
