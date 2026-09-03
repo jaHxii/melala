@@ -36,6 +36,17 @@ create index if not exists idx_sections_type_order
 create index if not exists idx_menu_items_section_order
   on public.menu_items (section_id, sort_order);
 
+-- Idempotent column additions for databases where the tables pre-date this
+-- migration (e.g. created manually without created_at/updated_at). The 0002
+-- trigger references updated_at, so a missing column breaks every UPDATE.
+alter table public.sections
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
+
+alter table public.menu_items
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
+
 -- Enabling RLS on already-existing tables is in 0002 below.
 alter table public.sections enable row level security;
 alter table public.menu_items enable row level security;
