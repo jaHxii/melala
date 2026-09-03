@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { restaurantMenu } from "@/data/restaurantMenu";
+import { useState, useEffect, useCallback } from "react";
 import { MenuGrid, MenuHeader, CategoryFilter, StickyPayButton } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
+import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
+import { restaurantMenu } from "@/data/restaurantMenu";
 
 export const Route = createFileRoute("/restaurant")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/restaurant")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/restaurant` },
-      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image", content: `${SITE_URL}/cafe-dark-logo.png` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -35,6 +36,18 @@ export const Route = createFileRoute("/restaurant")({
 function RestaurantMenuPage() {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [menuSections, setMenuSections] = useState<MenuSection[]>(restaurantMenu);
+
+  const loadMenu = useCallback(async () => {
+    const { sections, items } = await fetchMenuItems("restaurant");
+    if (sections.length > 0) {
+      setMenuSections(toMenuSections(sections, items));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMenu();
+  }, [loadMenu]);
 
   return (
     <div className="menu-bg-solid min-h-screen">
@@ -49,11 +62,11 @@ function RestaurantMenuPage() {
           {t("allPricesInEtb")}
         </p>
         <CategoryFilter
-          sections={restaurantMenu}
+          sections={menuSections}
           activeCategory={activeCategory}
           onSelect={setActiveCategory}
         />
-        <MenuGrid sections={restaurantMenu} filter={activeCategory} />
+        <MenuGrid sections={menuSections} filter={activeCategory} />
         <StickyPayButton from="restaurant" />
       </div>
     </div>

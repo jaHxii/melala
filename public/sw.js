@@ -1,10 +1,10 @@
-const CACHE_NAME = "melala-v2";
+const CACHE_NAME = "melala-v3";
 const STATIC_ASSETS = [
   "/",
   "/cafe",
   "/restaurant",
   "/payment",
-  "/logo.png",
+  "/cafe-dark-logo.png",
   "/logo.webp",
   "/favicon.png",
   "/manifest.json",
@@ -35,6 +35,12 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+
+  // Never cache admin routes
+  if (url.pathname.startsWith("/admin")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   // Static assets: cache-first
   if (

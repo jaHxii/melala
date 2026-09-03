@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { cafeMenu } from "@/data/cafeMenu";
+import { useState, useEffect, useCallback } from "react";
 import { MenuGrid, MenuHeader, CategoryFilter, StickyPayButton } from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
+import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
+import { cafeMenu } from "@/data/cafeMenu";
 
 export const Route = createFileRoute("/cafe")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/cafe")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/cafe` },
-      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image", content: `${SITE_URL}/cafe-dark-logo.png` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -35,6 +36,18 @@ export const Route = createFileRoute("/cafe")({
 function CafeMenuPage() {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [menuSections, setMenuSections] = useState<MenuSection[]>(cafeMenu);
+
+  const loadMenu = useCallback(async () => {
+    const { sections, items } = await fetchMenuItems("cafe");
+    if (sections.length > 0) {
+      setMenuSections(toMenuSections(sections, items));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMenu();
+  }, [loadMenu]);
 
   return (
     <div className="menu-bg-solid min-h-screen">
@@ -49,11 +62,11 @@ function CafeMenuPage() {
           {t("allPricesInEtb")}
         </p>
         <CategoryFilter
-          sections={cafeMenu}
+          sections={menuSections}
           activeCategory={activeCategory}
           onSelect={setActiveCategory}
         />
-        <MenuGrid sections={cafeMenu} filter={activeCategory} />
+        <MenuGrid sections={menuSections} filter={activeCategory} />
         <StickyPayButton from="cafe" />
       </div>
     </div>

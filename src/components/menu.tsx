@@ -103,8 +103,8 @@ export function MenuSectionCard({ section, id }: { section: MenuSectionType; id?
 export function BrandLogo({
   className = "w-32 sm:w-40",
   scrollable = false,
-  lightSrc = "/light-logo.jpg",
-  darkSrc = "/logo.png",
+  lightSrc = "/cafe-light-logo.jpg",
+  darkSrc = "/cafe-dark-logo.png",
   darkSrcSet,
   alt = "Melala Coffee logo",
 }: {

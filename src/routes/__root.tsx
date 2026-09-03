@@ -69,7 +69,7 @@ function HomeHeader() {
         >
           {isLight ? (
             <img
-              src="/light-logo.jpg"
+              src="/cafe-light-logo.jpg"
               alt="Melala Cafe & Restaurant logo"
               width="54"
               height="54"
@@ -81,7 +81,7 @@ function HomeHeader() {
             <picture>
               <source type="image/webp" srcSet="/logo.webp" />
               <img
-                src="/logo.png"
+                src="/cafe-dark-logo.png"
                 alt="Melala Cafe & Restaurant logo"
                 width="54"
                 height="54"
@@ -287,7 +287,7 @@ export const Route = createRootRoute({
         property: "og:description",
         content: "Specialty coffee, all-day breakfast and Ethiopian classics in Addis Ababa.",
       },
-      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image", content: `${SITE_URL}/cafe-dark-logo.png` },
       { property: "og:image:width", content: "512" },
       { property: "og:image:height", content: "512" },
       { property: "og:url", content: SITE_URL },
@@ -297,7 +297,7 @@ export const Route = createRootRoute({
         name: "twitter:description",
         content: "Specialty coffee, all-day breakfast and Ethiopian classics in Addis Ababa.",
       },
-      { name: "twitter:image", content: `${SITE_URL}/logo.png` },
+      { name: "twitter:image", content: `${SITE_URL}/cafe-dark-logo.png` },
       { name: "robots", content: "index, follow" },
       { name: "author", content: "Melala Cafe & Restaurant" },
     ],
@@ -318,7 +318,7 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/logo.png", type: "image/png", sizes: "512x512" },
+      { rel: "icon", href: "/cafe-dark-logo.png", type: "image/png", sizes: "512x512" },
       {
         rel: "icon",
         href: "/favicon.png",
@@ -327,7 +327,7 @@ export const Route = createRootRoute({
       },
       {
         rel: "apple-touch-icon",
-        href: "/logo.png",
+        href: "/cafe-dark-logo.png",
         sizes: "512x512",
       },
       { rel: "manifest", href: "/manifest.json" },

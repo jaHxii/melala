@@ -22,7 +22,7 @@ export const Route = createFileRoute("/payment")({
       { property: "og:description", content: "Three ways to pay your bill at Melala." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/payment` },
-      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image", content: `${SITE_URL}/cafe-dark-logo.png` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
@@ -261,14 +261,22 @@ function PaymentPage() {
             </code>
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  navigator.clipboard.writeText(selected.account);
+                  await navigator.clipboard.writeText(selected.account);
                   navigator.vibrate?.(10);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1500);
                 } catch {
-                  /* clipboard not supported */
+                  // Fallback for non-HTTPS or unsupported browsers
+                  const input = document.createElement("input");
+                  input.value = selected.account;
+                  document.body.appendChild(input);
+                  input.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(input);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
                 }
               }}
               className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-bold transition-all active:scale-95 focus-ring ${

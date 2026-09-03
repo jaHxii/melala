@@ -34,7 +34,7 @@ const structuredData = {
   },
   servesCuisine: ["Ethiopian", "Coffee", "Breakfast", "Pizza"],
   priceRange: "$$",
-  image: `${SITE_URL}/logo.png`,
+  image: `${SITE_URL}/cafe-dark-logo.png`,
 };
 
 export const Route = createFileRoute("/")({
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE_URL },
-      { property: "og:image", content: `${SITE_URL}/logo.png` },
+      { property: "og:image", content: `${SITE_URL}/cafe-dark-logo.png` },
     ],
     links: [{ rel: "canonical", href: SITE_URL }],
     scripts: [
