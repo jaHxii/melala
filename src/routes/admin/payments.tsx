@@ -7,6 +7,8 @@ import {
   type DbPaymentMethod,
 } from "@/lib/payment-db";
 import { PaymentMethodEditor, AddPaymentMethodForm } from "@/components/admin/PaymentMethodEditor";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { UndoToast } from "@/components/admin/UndoToast";
 import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/payments")({
@@ -127,6 +129,8 @@ function AdminPayments() {
         </div>
       </div>
 
+      <AdminNav />
+
       {/* Content */}
       <div className="mx-auto max-w-3xl px-4 py-6">
         {fetching ? (
@@ -144,6 +148,20 @@ function AdminPayments() {
           </div>
         ) : (
           <div className="space-y-4">
+            {methods.length === 0 && (
+              <div
+                className="rounded-2xl border border-dashed px-6 py-10 text-center"
+                style={{ borderColor: "var(--border)", background: "var(--card)" }}
+              >
+                <p className="text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                  No payment methods yet
+                </p>
+                <p className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  Add a method below — you'll need its name, account number, and images for the QR
+                  code and logo.
+                </p>
+              </div>
+            )}
             {methods.map((method, index) => (
               <PaymentMethodEditor
                 key={method.id}
@@ -160,6 +178,7 @@ function AdminPayments() {
         )}
         <DevCredit />
       </div>
+      <UndoToast onRestored={loadData} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ export type DbSection = {
   type: MenuType;
   sort_order: number;
   created_at: string;
+  updated_at: string;
 };
 
 export type DbMenuItem = {
@@ -24,6 +25,17 @@ export type DbMenuItem = {
   sort_order: number;
   available: boolean;
   created_at: string;
+  updated_at: string;
+};
+
+export type CreateResult<T> = {
+  data: T | null;
+  reason?: "duplicate" | "invalid" | "db";
+};
+
+export type WriteResult = {
+  ok: boolean;
+  error?: string;
 };
 
 /* ── Public Menu Types (matching existing MenuSection/MenuItem) ── */
@@ -124,12 +136,12 @@ export async function createSection(
   type: MenuType,
   nameEn: string,
   nameAm: string,
-): Promise<DbSection | null> {
-  if (!supabase) return null;
+): Promise<CreateResult<DbSection>> {
+  if (!supabase) return { data: null, reason: "db" };
 
   const cleanNameEn = sanitize(nameEn);
   const cleanNameAm = sanitize(nameAm);
-  if (!cleanNameEn) return null;
+  if (!cleanNameEn) return { data: null, reason: "invalid" };
 
   // Reject duplicate section names within the same menu type
   const { data: duplicate } = await supabase
@@ -138,7 +150,7 @@ export async function createSection(
     .eq("type", type)
     .eq("name_en", cleanNameEn)
     .maybeSingle();
-  if (duplicate) return null;
+  if (duplicate) return { data: null, reason: "duplicate" };
 
   // Get max sort_order
   const { data: existing } = await supabase
@@ -163,9 +175,9 @@ export async function createSection(
 
   if (error) {
     console.error("Error creating section:", error);
-    return null;
+    return { data: null, reason: "db" };
   }
-  return data;
+  return { data };
 }
 
 /* ── Update Section ───────────────────────────────────────────── */
@@ -173,17 +185,19 @@ export async function createSection(
 export async function updateSection(
   id: string,
   updates: { name_en?: string; name_am?: string; sort_order?: number },
-): Promise<boolean> {
-  if (!supabase) return false;
+): Promise<WriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   const clean: typeof updates = {};
   if (updates.name_en !== undefined) clean.name_en = sanitize(updates.name_en);
   if (updates.name_am !== undefined) clean.name_am = sanitize(updates.name_am);
   if (updates.sort_order !== undefined) clean.sort_order = updates.sort_order;
-  if (clean.name_en !== undefined && !clean.name_en) return false;
+  if (clean.name_en !== undefined && !clean.name_en) {
+    return { ok: false, error: "Section name is required." };
+  }
 
   const { error } = await supabase.from("sections").update(clean).eq("id", id);
-  return !error;
+  return error ? { ok: false, error: error.message } : { ok: true };
 }
 export type SwapResult = { ok: boolean; error?: string };
 
@@ -218,14 +232,15 @@ export async function swapSectionOrder(idA: string, idB: string): Promise<SwapRe
 
 /* ── Delete Section ───────────────────────────────────────────── */
 
-export async function deleteSection(id: string): Promise<boolean> {
-  if (!supabase) return false;
+export async function deleteSection(id: string): Promise<WriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   // Delete all items in this section first
-  await supabase.from("menu_items").delete().eq("section_id", id);
+  const { error: itemsError } = await supabase.from("menu_items").delete().eq("section_id", id);
+  if (itemsError) return { ok: false, error: itemsError.message };
 
   const { error } = await supabase.from("sections").delete().eq("id", id);
-  return !error;
+  return error ? { ok: false, error: error.message } : { ok: true };
 }
 
 /* ── Create Menu Item ─────────────────────────────────────────── */
@@ -239,11 +254,13 @@ export async function createMenuItem(
     description_am?: string;
     price: number;
   },
-): Promise<DbMenuItem | null> {
-  if (!supabase) return null;
+): Promise<CreateResult<DbMenuItem>> {
+  if (!supabase) return { data: null, reason: "db" };
 
   const cleanNameEn = sanitize(item.name_en);
-  if (!cleanNameEn || !Number.isFinite(item.price) || item.price < 0) return null;
+  if (!cleanNameEn || !Number.isFinite(item.price) || item.price < 0) {
+    return { data: null, reason: "invalid" };
+  }
 
   // Reject duplicate item names within the same section
   const { data: duplicate } = await supabase
@@ -252,7 +269,7 @@ export async function createMenuItem(
     .eq("section_id", sectionId)
     .eq("name_en", cleanNameEn)
     .maybeSingle();
-  if (duplicate) return null;
+  if (duplicate) return { data: null, reason: "duplicate" };
 
   // Get max sort_order for this section
   const { data: existing } = await supabase
@@ -281,9 +298,9 @@ export async function createMenuItem(
 
   if (error) {
     console.error("Error creating menu item:", error);
-    return null;
+    return { data: null, reason: "db" };
   }
-  return data;
+  return { data };
 }
 
 /* ── Update Menu Item ─────────────────────────────────────────── */
@@ -299,8 +316,8 @@ export async function updateMenuItem(
     available?: boolean;
     sort_order?: number;
   },
-): Promise<boolean> {
-  if (!supabase) return false;
+): Promise<WriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   const clean: typeof updates = {};
   if (updates.name_en !== undefined) clean.name_en = sanitize(updates.name_en);
@@ -310,13 +327,15 @@ export async function updateMenuItem(
   if (updates.price !== undefined) clean.price = Math.max(0, Math.round(updates.price));
   if (updates.available !== undefined) clean.available = updates.available;
   if (updates.sort_order !== undefined) clean.sort_order = updates.sort_order;
-  if (clean.name_en !== undefined && !clean.name_en) return false;
+  if (clean.name_en !== undefined && !clean.name_en) {
+    return { ok: false, error: "Item name is required." };
+  }
   if (updates.price !== undefined && (!Number.isFinite(updates.price) || updates.price < 0)) {
-    return false;
+    return { ok: false, error: "Price must be 0 or more." };
   }
 
   const { error } = await supabase.from("menu_items").update(clean).eq("id", id);
-  return !error;
+  return error ? { ok: false, error: error.message } : { ok: true };
 } /** Swap two items' sort_order values (used by admin reordering). */
 export async function swapMenuItemOrder(idA: string, idB: string): Promise<SwapResult> {
   if (!supabase) return { ok: false, error: "Database is not configured." };
@@ -348,9 +367,64 @@ export async function swapMenuItemOrder(idA: string, idB: string): Promise<SwapR
 
 /* ── Delete Menu Item ─────────────────────────────────────────── */
 
-export async function deleteMenuItem(id: string): Promise<boolean> {
-  if (!supabase) return false;
+export async function deleteMenuItem(id: string): Promise<WriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   const { error } = await supabase.from("menu_items").delete().eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/* ── Bulk availability (hide/show a whole section) ─────────────── */
+
+export async function setSectionItemsAvailability(
+  sectionId: string,
+  available: boolean,
+): Promise<WriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
+  const { error } = await supabase
+    .from("menu_items")
+    .update({ available })
+    .eq("section_id", sectionId);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/* ── Duplicate an item (variant creation) ──────────────────────── */
+
+export async function duplicateMenuItem(id: string): Promise<CreateResult<DbMenuItem>> {
+  if (!supabase) return { data: null, reason: "db" };
+  const { data: item } = await supabase.from("menu_items").select("*").eq("id", id).maybeSingle();
+  if (!item) return { data: null, reason: "invalid" };
+
+  for (let i = 2; i <= 4; i++) {
+    const suffix = i === 2 ? "(copy)" : `(copy ${i - 1})`;
+    const result = await createMenuItem(item.section_id, {
+      name_en: `${item.name_en} ${suffix}`,
+      name_am: item.name_am ?? undefined,
+      description_en: item.description_en ?? undefined,
+      description_am: item.description_am ?? undefined,
+      price: item.price,
+    });
+    if (result.data) return result;
+    if (result.reason !== "duplicate") return result;
+  }
+  return { data: null, reason: "duplicate" };
+}
+
+/* ── Undo helpers (re-insert captured rows) ────────────────────── */
+
+export async function restoreSection(section: DbSection, items: DbMenuItem[]): Promise<boolean> {
+  if (!supabase) return false;
+  const { error: e1 } = await supabase.from("sections").insert(section);
+  if (e1) return false;
+  if (items.length > 0) {
+    const { error: e2 } = await supabase.from("menu_items").insert(items);
+    return !e2;
+  }
+  return true;
+}
+
+export async function restoreMenuItem(item: DbMenuItem): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.from("menu_items").insert(item);
   return !error;
 }

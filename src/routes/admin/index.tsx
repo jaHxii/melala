@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { fetchMenuItems } from "@/lib/menu-db";
+import { AdminNav } from "@/components/admin/AdminNav";
 import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/")({
@@ -13,18 +14,43 @@ export const Route = createFileRoute("/admin/")({
   ),
 });
 
+function latestUpdate(items: { updated_at: string }[]): string | null {
+  let latest: string | null = null;
+  for (const item of items) {
+    if (!latest || item.updated_at > latest) latest = item.updated_at;
+  }
+  return latest;
+}
+
+function timeAgo(iso: string | null): string {
+  if (!iso) return "never";
+  const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
 function AdminDashboard() {
   const { user, loading, logout } = useAdmin();
   const navigate = useNavigate();
   const [cafeCount, setCafeCount] = useState(0);
+  const [cafeHidden, setCafeHidden] = useState(0);
+  const [cafeUpdated, setCafeUpdated] = useState<string | null>(null);
   const [restCount, setRestCount] = useState(0);
+  const [restHidden, setRestHidden] = useState(0);
+  const [restUpdated, setRestUpdated] = useState<string | null>(null);
   const [dbStatus, setDbStatus] = useState<"checking" | "ok" | "error">("checking");
 
   const loadCounts = useCallback(async () => {
     const cafe = await fetchMenuItems("cafe");
     const rest = await fetchMenuItems("restaurant");
     setCafeCount(cafe.items.length);
+    setCafeHidden(cafe.items.filter((i) => !i.available).length);
+    setCafeUpdated(latestUpdate([...cafe.sections, ...cafe.items]));
     setRestCount(rest.items.length);
+    setRestHidden(rest.items.filter((i) => !i.available).length);
+    setRestUpdated(latestUpdate([...rest.sections, ...rest.items]));
     setDbStatus(cafe.failed || rest.failed ? "error" : "ok");
   }, []);
 
@@ -104,6 +130,8 @@ function AdminDashboard() {
         </div>
       </div>
 
+      <AdminNav />
+
       {/* Database status */}
       <div className="mx-auto max-w-2xl px-4 pt-6">
         <div
@@ -168,6 +196,9 @@ function AdminDashboard() {
             <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
               Breakfast, drinks, pizzas, snacks
             </p>
+            <p className="mt-2 text-xs" style={{ color: "var(--muted-foreground)", opacity: 0.8 }}>
+              {cafeHidden > 0 ? `${cafeHidden} hidden · ` : ""}updated {timeAgo(cafeUpdated)}
+            </p>
           </Link>
 
           <Link
@@ -195,6 +226,9 @@ function AdminDashboard() {
             </h2>
             <p className="mt-1 text-sm" style={{ color: "var(--muted-foreground)" }}>
               Starters, mains, pizza, pasta, desserts
+            </p>
+            <p className="mt-2 text-xs" style={{ color: "var(--muted-foreground)", opacity: 0.8 }}>
+              {restHidden > 0 ? `${restHidden} hidden · ` : ""}updated {timeAgo(restUpdated)}
             </p>
           </Link>
 

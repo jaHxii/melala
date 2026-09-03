@@ -1,6 +1,7 @@
 import { useState, useCallback, type FormEvent } from "react";
 import type { DbMenuItem } from "@/lib/menu-db";
-import { updateMenuItem, deleteMenuItem } from "@/lib/menu-db";
+import { updateMenuItem, deleteMenuItem, duplicateMenuItem, restoreMenuItem } from "@/lib/menu-db";
+import { registerUndo } from "@/lib/delete-undo";
 import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
 type ItemEditorProps = {
@@ -50,24 +51,50 @@ export function ItemEditor({
       const result = await updateMenuItem(item.id, updates);
 
       setSaving(false);
-      if (result) {
+      if (result.ok) {
         setEditing(false);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 1500);
         onUpdate();
       } else {
-        setError("Failed to save. Are you logged in?");
+        setError(result.error ?? "Failed to save.");
       }
     },
     [item.id, nameEn, nameAm, descEn, descAm, price, available, onUpdate],
   );
 
   const handleDelete = useCallback(async () => {
-    const success = await deleteMenuItem(item.id);
-    if (success) {
+    const captured = item;
+    const result = await deleteMenuItem(item.id);
+    if (result.ok) {
+      registerUndo({
+        id: `item-${item.id}`,
+        label: item.name_en,
+        restore: async () => {
+          const ok = await restoreMenuItem(captured);
+          if (ok) onUpdate();
+          return ok;
+        },
+      });
       onUpdate();
     } else {
-      setError("Failed to delete. Are you logged in?");
+      setError(result.error ?? "Failed to delete.");
+    }
+  }, [item, onUpdate]);
+
+  const handleCopy = useCallback(async () => {
+    setError("");
+    const result = await duplicateMenuItem(item.id);
+    if (result.data) {
+      setSuccess(true);
+      window.setTimeout(() => setSuccess(false), 1500);
+      onUpdate();
+    } else if (result.reason === "duplicate") {
+      setError("Couldn't name the copy — too many existing copies. Edit one instead.");
+    } else if (result.reason === "db") {
+      setError("Failed to copy — check that you are logged in and the database is reachable.");
+    } else {
+      setError("Failed to copy this item.");
     }
   }, [item.id, onUpdate]);
 
@@ -377,7 +404,19 @@ export function ItemEditor({
       >
         {item.price}
       </span>{" "}
-      <div className="flex shrink-0 gap-1">
+      <div className="flex shrink-0 flex-wrap justify-end gap-1">
+        <button
+          type="button"
+          onClick={handleCopy}
+          title="Duplicate this item (adds a copy to the same section)"
+          className="rounded-lg border px-3 py-1.5 text-xs font-medium transition-all"
+          style={{
+            border: "1px solid var(--border)",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          Copy
+        </button>
         <button
           type="button"
           onClick={() => setEditing(true)}
@@ -465,15 +504,21 @@ export function AddItemForm({ sectionId, onAdded }: AddItemFormProps) {
       const result = await createMenuItem(sectionId, itemData);
 
       setSaving(false);
-      if (result) {
+      if (result.data) {
         setNameEn("");
         setNameAm("");
         setDescEn("");
         setPrice("");
         setOpen(false);
         onAdded();
+      } else if (result.reason === "duplicate") {
+        setError(`An item named “${nameEn.trim()}” already exists in this section.`);
+      } else if (result.reason === "invalid") {
+        setError("Name and a valid price are required.");
       } else {
-        setError("Failed to add item. Are you logged in?");
+        setError(
+          "Failed to add item — check that you are logged in and the database is reachable.",
+        );
       }
     },
     [sectionId, nameEn, nameAm, descEn, price, onAdded],

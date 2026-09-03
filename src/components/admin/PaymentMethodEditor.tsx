@@ -5,7 +5,9 @@ import {
   deletePaymentMethod,
   createPaymentMethod,
   uploadPaymentImage,
+  restorePaymentMethod,
 } from "@/lib/payment-db";
+import { registerUndo } from "@/lib/delete-undo";
 import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
 /* ── Small shared pieces ──────────────────────────────────────── */
@@ -145,6 +147,7 @@ export function PaymentMethodEditor({
   const [editing, setEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const [name, setName] = useState(method.name);
@@ -160,7 +163,7 @@ export function PaymentMethodEditor({
       e.preventDefault();
       setSaving(true);
       setError("");
-      const success = await updatePaymentMethod(method.id, {
+      const result = await updatePaymentMethod(method.id, {
         name,
         detail,
         account,
@@ -170,11 +173,13 @@ export function PaymentMethodEditor({
         logo_url: logoUrl,
       });
       setSaving(false);
-      if (success) {
+      if (result.ok) {
         setEditing(false);
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1500);
         onUpdate();
       } else {
-        setError("Failed to save. Check the values and that you are logged in.");
+        setError(result.error ?? "Failed to save.");
       }
     },
     [method.id, name, detail, account, accountNameEn, accountNameAm, imageUrl, logoUrl, onUpdate],
@@ -182,16 +187,29 @@ export function PaymentMethodEditor({
 
   const handleToggle = useCallback(async () => {
     setError("");
-    const success = await updatePaymentMethod(method.id, { enabled: !method.enabled });
-    if (success) onUpdate();
-    else setError("Failed to update. Are you logged in?");
+    const result = await updatePaymentMethod(method.id, { enabled: !method.enabled });
+    if (result.ok) onUpdate();
+    else setError(result.error ?? "Failed to update.");
   }, [method.id, method.enabled, onUpdate]);
 
   const handleDelete = useCallback(async () => {
-    const success = await deletePaymentMethod(method.id);
-    if (success) onUpdate();
-    else setError("Failed to delete. Are you logged in?");
-  }, [method.id, onUpdate]);
+    const captured = method;
+    const result = await deletePaymentMethod(method.id);
+    if (result.ok) {
+      registerUndo({
+        id: `method-${method.id}`,
+        label: method.name,
+        restore: async () => {
+          const ok = await restorePaymentMethod(captured);
+          if (ok) onUpdate();
+          return ok;
+        },
+      });
+      onUpdate();
+    } else {
+      setError(result.error ?? "Failed to delete.");
+    }
+  }, [method, onUpdate]);
 
   const dirty =
     editing &&
@@ -221,7 +239,7 @@ export function PaymentMethodEditor({
     <div
       className="overflow-hidden rounded-2xl"
       style={{
-        border: "1px solid var(--border)",
+        border: saved ? "1px solid oklch(0.5 0.15 145 / 0.45)" : "1px solid var(--border)",
         background: "var(--card)",
       }}
     >
@@ -267,7 +285,7 @@ export function PaymentMethodEditor({
             {method.account}
           </p>
         </div>
-        <div className="flex shrink-0 gap-1">
+        <div className="flex shrink-0 flex-wrap justify-end gap-1">
           {onMoveUp && (
             <button
               type="button"
@@ -477,7 +495,7 @@ export function AddPaymentMethodForm({ onAdded }: { onAdded: () => void }) {
         logo_url: logoUrl,
       });
       setSaving(false);
-      if (result) {
+      if (result.data) {
         setName("");
         setDetail("");
         setAccount("");
@@ -487,9 +505,13 @@ export function AddPaymentMethodForm({ onAdded }: { onAdded: () => void }) {
         setLogoUrl("");
         setOpen(false);
         onAdded();
+      } else if (result.reason === "duplicate") {
+        setError(`A method named “${name.trim()}” already exists.`);
+      } else if (result.reason === "invalid") {
+        setError("Fill in the name, account number, owner name, and both images.");
       } else {
         setError(
-          "Failed to add method. Check for a duplicate name and that both images are uploaded.",
+          "Failed to add method — check that you are logged in and the database is reachable.",
         );
       }
     },

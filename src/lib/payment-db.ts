@@ -28,6 +28,16 @@ export type PaymentMethodInput = {
   logo_url: string;
 };
 
+export type CreatePaymentResult = {
+  data: DbPaymentMethod | null;
+  reason?: "duplicate" | "invalid" | "db";
+};
+
+export type PaymentWriteResult = {
+  ok: boolean;
+  error?: string;
+};
+
 /* ── Fetch ────────────────────────────────────────────────────── */
 
 export type PaymentFetchResult = {
@@ -82,10 +92,8 @@ function sanitize(input: string): string {
 
 /* ── Create ───────────────────────────────────────────────────── */
 
-export async function createPaymentMethod(
-  input: PaymentMethodInput,
-): Promise<DbPaymentMethod | null> {
-  if (!supabase) return null;
+export async function createPaymentMethod(input: PaymentMethodInput): Promise<CreatePaymentResult> {
+  if (!supabase) return { data: null, reason: "db" };
 
   const clean: PaymentMethodInput = {
     name: sanitize(input.name),
@@ -96,8 +104,9 @@ export async function createPaymentMethod(
     image_url: input.image_url.trim(),
     logo_url: input.logo_url.trim(),
   };
-  if (!clean.name || !clean.account || !clean.account_name_en) return null;
-  if (!clean.image_url || !clean.logo_url) return null;
+  if (!clean.name || !clean.account || !clean.account_name_en)
+    return { data: null, reason: "invalid" };
+  if (!clean.image_url || !clean.logo_url) return { data: null, reason: "invalid" };
 
   // Reject duplicate method names
   const { data: duplicate } = await supabase
@@ -105,7 +114,7 @@ export async function createPaymentMethod(
     .select("id")
     .eq("name", clean.name)
     .maybeSingle();
-  if (duplicate) return null;
+  if (duplicate) return { data: null, reason: "duplicate" };
 
   // Get max sort_order
   const { data: existing } = await supabase
@@ -124,9 +133,9 @@ export async function createPaymentMethod(
 
   if (error) {
     console.error("Error creating payment method:", error);
-    return null;
+    return { data: null, reason: "db" };
   }
-  return data;
+  return { data };
 }
 
 /* ── Update ───────────────────────────────────────────────────── */
@@ -139,8 +148,8 @@ export type PaymentMethodUpdates = Partial<PaymentMethodInput> & {
 export async function updatePaymentMethod(
   id: string,
   updates: PaymentMethodUpdates,
-): Promise<boolean> {
-  if (!supabase) return false;
+): Promise<PaymentWriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   const clean: PaymentMethodUpdates = {};
   if (updates.name !== undefined) clean.name = sanitize(updates.name);
@@ -156,11 +165,13 @@ export async function updatePaymentMethod(
   if (updates.logo_url !== undefined) clean.logo_url = updates.logo_url.trim();
   if (updates.enabled !== undefined) clean.enabled = updates.enabled;
   if (updates.sort_order !== undefined) clean.sort_order = updates.sort_order;
-  if (clean.name !== undefined && !clean.name) return false;
+  if (clean.name !== undefined && !clean.name) {
+    return { ok: false, error: "Method name is required." };
+  }
 
   const { error } = await supabase.from("payment_methods").update(clean).eq("id", id);
   if (error) console.error("Error updating payment method:", error);
-  return !error;
+  return error ? { ok: false, error: error.message } : { ok: true };
 }
 
 /* ── Swap (reorder) ───────────────────────────────────────────── */
@@ -197,10 +208,18 @@ export async function swapPaymentMethodOrder(idA: string, idB: string): Promise<
 
 /* ── Delete ───────────────────────────────────────────────────── */
 
-export async function deletePaymentMethod(id: string): Promise<boolean> {
-  if (!supabase) return false;
+export async function deletePaymentMethod(id: string): Promise<PaymentWriteResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
 
   const { error } = await supabase.from("payment_methods").delete().eq("id", id);
+  return error ? { ok: false, error: error.message } : { ok: true };
+}
+
+/* ── Undo helper ──────────────────────────────────────────────── */
+
+export async function restorePaymentMethod(method: DbPaymentMethod): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.from("payment_methods").insert(method);
   return !error;
 }
 

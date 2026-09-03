@@ -1,6 +1,14 @@
-import { useState, useCallback, type FormEvent } from "react";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
 import type { DbSection, DbMenuItem } from "@/lib/menu-db";
-import { updateSection, deleteSection, createSection, swapMenuItemOrder } from "@/lib/menu-db";
+import {
+  updateSection,
+  deleteSection,
+  createSection,
+  swapMenuItemOrder,
+  setSectionItemsAvailability,
+  restoreSection,
+} from "@/lib/menu-db";
+import { registerUndo } from "@/lib/delete-undo";
 import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 import { ItemEditor, AddItemForm } from "./ItemEditor";
 
@@ -27,9 +35,31 @@ export function SectionEditor({
   const [nameEn, setNameEn] = useState(section.name_en);
   const [nameAm, setNameAm] = useState(section.name_am ?? "");
   const [saving, setSaving] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Persist collapse state per section across visits
+  const collapseKey = `melala-admin-collapsed-${section.id}`;
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(collapseKey) === "1") setCollapsed(true);
+    } catch {
+      /* storage unavailable */
+    }
+  }, [collapseKey]);
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        window.localStorage.setItem(collapseKey, next ? "1" : "0");
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
+  }, [collapseKey]);
 
   const handleSave = useCallback(
     async (e: FormEvent) => {
@@ -41,26 +71,49 @@ export function SectionEditor({
       };
       if (nameAm) updates.name_am = nameAm;
 
-      const success = await updateSection(section.id, updates);
+      const result = await updateSection(section.id, updates);
       setSaving(false);
-      if (success) {
+      if (result.ok) {
         setEditing(false);
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1500);
         onUpdate();
       } else {
-        setError("Failed to save. Are you logged in?");
+        setError(result.error ?? "Failed to save.");
       }
     },
     [section.id, nameEn, nameAm, onUpdate],
   );
 
   const handleDelete = useCallback(async () => {
-    const success = await deleteSection(section.id);
-    if (success) {
+    const captured = { section, items };
+    const result = await deleteSection(section.id);
+    if (result.ok) {
+      registerUndo({
+        id: `section-${section.id}`,
+        label: section.name_en,
+        restore: async () => {
+          const ok = await restoreSection(captured.section, captured.items);
+          if (ok) onUpdate();
+          return ok;
+        },
+      });
       onUpdate();
     } else {
-      setError("Failed to delete. Are you logged in?");
+      setError(result.error ?? "Failed to delete.");
     }
-  }, [section.id, onUpdate]);
+  }, [section, items, onUpdate]);
+
+  const allVisible = items.length > 0 && items.every((i) => i.available);
+  const handleBulkVisible = useCallback(async () => {
+    setError("");
+    const result = await setSectionItemsAvailability(section.id, !allVisible);
+    if (result.ok) {
+      onUpdate();
+    } else {
+      setError(result.error ?? "Failed to update items.");
+    }
+  }, [section.id, allVisible, onUpdate]);
 
   const dirty = editing && (nameEn !== section.name_en || nameAm !== (section.name_am ?? ""));
   useDirtyGuard(dirty);
@@ -97,7 +150,7 @@ export function SectionEditor({
     <div
       className="overflow-hidden rounded-2xl"
       style={{
-        border: "1px solid var(--border)",
+        border: saved ? "1px solid oklch(0.5 0.15 145 / 0.45)" : "1px solid var(--border)",
         background: "var(--card)",
       }}
     >
@@ -111,8 +164,8 @@ export function SectionEditor({
       >
         <button
           type="button"
-          onClick={() => setCollapsed(!collapsed)}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+          onClick={toggleCollapsed}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
           style={{ color: "var(--muted-foreground)" }}
           aria-label={collapsed ? "Expand section" : "Collapse section"}
         >
@@ -204,7 +257,7 @@ export function SectionEditor({
             >
               {items.length}
             </span>
-            <div className="flex shrink-0 gap-1">
+            <div className="flex shrink-0 flex-wrap justify-end gap-1">
               {onMoveUp && (
                 <button
                   type="button"
@@ -261,6 +314,23 @@ export function SectionEditor({
                   </svg>
                 </button>
               )}
+              <button
+                type="button"
+                onClick={handleBulkVisible}
+                disabled={items.length === 0}
+                title={
+                  allVisible
+                    ? "Hide every item in this section from the public menu"
+                    : "Make every item in this section available"
+                }
+                className="rounded-lg border px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-40"
+                style={{
+                  border: "1px solid var(--border)",
+                  color: "var(--muted-foreground)",
+                }}
+              >
+                {allVisible ? "Hide all" : "Show all"}
+              </button>
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -373,13 +443,19 @@ export function AddSectionForm({ type, onAdded }: AddSectionFormProps) {
       setError("");
       const result = await createSection(type, nameEn, nameAm);
       setSaving(false);
-      if (result) {
+      if (result.data) {
         setNameEn("");
         setNameAm("");
         setOpen(false);
         onAdded();
+      } else if (result.reason === "duplicate") {
+        setError(`A section named “${nameEn.trim()}” already exists.`);
+      } else if (result.reason === "invalid") {
+        setError("Section name is required.");
       } else {
-        setError("Failed to add section. Are you logged in?");
+        setError(
+          "Failed to add section — check that you are logged in and the database is reachable.",
+        );
       }
     },
     [type, nameEn, nameAm, onAdded],

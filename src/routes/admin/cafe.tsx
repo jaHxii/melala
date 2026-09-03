@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { fetchMenuItems, swapSectionOrder, type DbSection, type DbMenuItem } from "@/lib/menu-db";
 import { SectionEditor, AddSectionForm } from "@/components/admin/SectionEditor";
+import { AdminNav } from "@/components/admin/AdminNav";
+import { UndoToast } from "@/components/admin/UndoToast";
 import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/cafe")({
@@ -141,6 +143,8 @@ function AdminCafe() {
         </div>
       </div>
 
+      <AdminNav />
+
       {/* Search */}
       <div className="mx-auto max-w-3xl px-4 pt-4">
         <input
@@ -175,6 +179,19 @@ function AdminCafe() {
           </div>
         ) : (
           <div className="space-y-4">
+            {sections.length === 0 && (
+              <div
+                className="rounded-2xl border border-dashed px-6 py-10 text-center"
+                style={{ borderColor: "var(--border)", background: "var(--card)" }}
+              >
+                <p className="text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                  No sections yet
+                </p>
+                <p className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  Add your first cafe section below (e.g. “Breakfast”), then add items inside it.
+                </p>
+              </div>
+            )}
             {visibleSections.map((section, index) => (
               <SectionEditor
                 key={section.id}
@@ -194,6 +211,7 @@ function AdminCafe() {
         )}
         <DevCredit />
       </div>
+      <UndoToast onRestored={loadData} />
     </div>
   );
 }
