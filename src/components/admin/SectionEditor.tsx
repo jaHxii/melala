@@ -1,6 +1,7 @@
 import { useState, useCallback, type FormEvent } from "react";
 import type { DbSection, DbMenuItem } from "@/lib/menu-db";
 import { updateSection, deleteSection, createSection, swapMenuItemOrder } from "@/lib/menu-db";
+import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 import { ItemEditor, AddItemForm } from "./ItemEditor";
 
 type SectionEditorProps = {
@@ -61,12 +62,16 @@ export function SectionEditor({
     }
   }, [section.id, onUpdate]);
 
+  const dirty = editing && (nameEn !== section.name_en || nameAm !== (section.name_am ?? ""));
+  useDirtyGuard(dirty);
+
   const handleCancel = useCallback(() => {
+    if (dirty && !window.confirm("Discard unsaved changes?")) return;
     setNameEn(section.name_en);
     setNameAm(section.name_am ?? "");
     setEditing(false);
     setError("");
-  }, [section]);
+  }, [section, dirty]);
 
   const handleMoveItem = useCallback(
     async (index: number, dir: 1 | -1) => {
@@ -207,7 +212,7 @@ export function SectionEditor({
                   disabled={!canMoveUp}
                   aria-label={`Move section ${section.name_en} up`}
                   title="Move section up"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
                   style={{
                     border: "1px solid var(--border)",
                     color: "var(--muted-foreground)",
@@ -235,7 +240,7 @@ export function SectionEditor({
                   disabled={!canMoveDown}
                   aria-label={`Move section ${section.name_en} down`}
                   title="Move section down"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
                   style={{
                     border: "1px solid var(--border)",
                     color: "var(--muted-foreground)",

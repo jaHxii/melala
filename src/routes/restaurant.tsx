@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { MenuGrid, MenuHeader, CategoryFilter, StickyPayButton } from "@/components/menu";
+import {
+  MenuGrid,
+  MenuHeader,
+  CategoryFilter,
+  StickyPayButton,
+  BackToTopButton,
+} from "@/components/menu";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
@@ -104,6 +110,7 @@ function RestaurantMenuPage() {
           onSelect={setActiveCategory}
         />
         <MenuGrid sections={menuSections} filter={activeCategory} />
+        <BackToTopButton />
         <StickyPayButton from="restaurant" />
       </div>
     </div>

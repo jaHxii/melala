@@ -44,7 +44,7 @@ function MenuItemRow({ item }: { item: MenuItemType }) {
 
   return (
     <li
-      className="flex items-baseline gap-3 rounded-xl px-4 py-3 transition-colors active:bg-secondary/50"
+      className="focus-ring flex items-baseline gap-3 rounded-xl px-4 py-3 transition-colors active:bg-secondary/50"
       onClick={handleTap}
       role="button"
       tabIndex={0}
@@ -53,7 +53,9 @@ function MenuItemRow({ item }: { item: MenuItemType }) {
       }}
     >
       <div className="min-w-0 flex-1">
-        {item.local ? <p className="font-ethiopic text-sm text-cream/70">{item.local}</p> : null}
+        {item.local ? (
+          <p className="font-ethiopic text-sm text-foreground/70">{item.local}</p>
+        ) : null}
         <h3 className="menu-item-name">{item.name}</h3>
         {item.description ? <p className="menu-item-desc">{item.description}</p> : null}
       </div>
@@ -76,18 +78,8 @@ function MenuSectionCard({ section, id }: { section: MenuSectionType; id?: strin
       id={id}
       className="card-berbere-hover break-inside-avoid rounded-2xl border border-border bg-card p-6 pb-7"
     >
-      <div className="-mt-8 mb-8 flex justify-center">
+      <div className="-mt-8 mb-4 flex justify-center">
         <SectionBadge label={section.category} local={section.local} />
-      </div>
-      <div className="mb-6">
-        <h2 className="menu-section-title text-center">
-          {section.local && (
-            <span className="font-ethiopic text-sm font-medium normal-case tracking-normal opacity-70 mr-2">
-              {section.local}
-            </span>
-          )}
-          {section.category}
-        </h2>
       </div>
       <ul className="space-y-2" aria-label={`${section.category} menu items`}>
         {section.items.map((item) => (
@@ -173,6 +165,7 @@ export function MenuHeader({
   darkLogo?: string;
   darkLogoSet?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <header className="flex flex-col items-center pt-14 pb-4 text-center sm:pt-20">
       <BrandLogo
@@ -182,11 +175,12 @@ export function MenuHeader({
         darkSrc={darkLogo}
         darkSrcSet={darkLogoSet}
       />
-      <p className="tracking-widget text-cream/60">{eyebrow}</p>
+      <p className="tracking-widget text-foreground/60">{eyebrow}</p>
       <h1 className="section-heading mt-3 uppercase">
         <span className="brand-coffee">{title || "Melala"}</span>
       </h1>
       <div className="mx-auto mt-5 h-px w-24 bg-border" />
+      <p className="mt-4 text-sm text-foreground/60">{t("tagline")}</p>
     </header>
   );
 }
@@ -202,13 +196,15 @@ export function CategoryFilter({
   activeCategory: string | null;
   onSelect: (category: string | null) => void;
 }) {
+  const visibleSections = sections.filter((s) => s.items.length > 0);
+
   return (
-    <div className="sticky top-0 z-40 -mx-4 overflow-x-auto bg-background/95 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
+    <div className="sticky top-16 z-40 -mx-4 overflow-x-auto bg-background/95 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
       <div className="mx-auto flex max-w-5xl gap-2.5">
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`filter-pill-active shrink-0 rounded-full border px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all ${
+          className={`filter-pill-active shrink-0 rounded-full border px-5 py-2.5 text-sm font-bold uppercase tracking-wider transition-all ${
             activeCategory === null
               ? "border-transparent bg-card text-berbere"
               : "border-border bg-card text-foreground/60 hover:border-clay hover:text-foreground"
@@ -216,12 +212,12 @@ export function CategoryFilter({
         >
           All
         </button>
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <button
             key={section.category}
             type="button"
             onClick={() => onSelect(section.category)}
-            className={`shrink-0 rounded-full border px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all ${
+            className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-bold uppercase tracking-wider transition-all ${
               activeCategory === section.category
                 ? "filter-pill-active border-transparent bg-card text-berbere"
                 : "border-border bg-card text-foreground/60 hover:border-clay hover:text-foreground"
@@ -258,9 +254,48 @@ export function StickyPayButton({ from }: { from: string }) {
           className="btn-primary w-full max-w-md focus-ring"
           onClick={handleClick}
         >
-          {t("payment")}
+          {t("payNow")}
         </Link>
       </div>
+    </div>
+  );
+}
+
+/* ── Back to Top ───────────────────────────────────────────────── */
+
+export function BackToTopButton() {
+  const { t } = useLanguage();
+  const handleClick = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  return (
+    <div className="flex justify-center pt-10">
+      <button
+        type="button"
+        onClick={handleClick}
+        className="focus-ring flex items-center gap-2 rounded-full border px-5 py-2.5 text-xs font-bold uppercase tracking-widest transition-all hover:opacity-80"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--card)",
+          color: "var(--muted-foreground)",
+        }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m18 15-6-6-6 6" />
+        </svg>
+        {t("backToTop")}
+      </button>
     </div>
   );
 }
@@ -302,7 +337,9 @@ export function MenuGrid({
   sections: MenuSectionType[];
   filter?: string | null;
 }) {
-  const filtered = filter ? sections.filter((s) => s.category === filter) : sections;
+  const filtered = (filter ? sections.filter((s) => s.category === filter) : sections).filter(
+    (s) => s.items.length > 0,
+  );
 
   return (
     <div className="mx-auto max-w-5xl gap-x-10 pt-6 lg:columns-2">

@@ -77,7 +77,7 @@ function Home() {
         <div style={{ transform: `translateY(${-parallaxOffset * 0.5}px)` }}>
           <BrandLogo className="mb-8 w-56 sm:w-72" />
         </div>
-        <p className="tracking-widget text-cream/60">{t("estAddisAbaba")}</p>
+        <p className="tracking-widget text-foreground/60">{t("estAddisAbaba")}</p>
         <h1
           className="mt-5 font-display font-semibold uppercase leading-none tracking-[0.16em]"
           style={{ fontSize: "clamp(3rem, 10vw, 5rem)" }}
@@ -127,18 +127,18 @@ function Home() {
         className={`grid grid-cols-2 gap-4 pb-16 reveal ${infoVisible ? "visible" : ""}`}
       >
         <div className="card-hover rounded-2xl border border-border bg-card p-6 text-center">
-          <p className="tracking-widget text-cream/60">{t("hours")}</p>
+          <p className="tracking-widget text-foreground/60">{t("hours")}</p>
           <p className="mt-3 text-sm text-foreground/60">{t("monSun")}</p>
           <p className="text-sm text-foreground">{t("hoursTime")}</p>
         </div>
         <div className="card-hover rounded-2xl border border-border bg-card p-6 text-center">
-          <p className="tracking-widget text-cream/60">{t("contact")}</p>
+          <p className="tracking-widget text-foreground/60">{t("contact")}</p>
           <a href={`tel:${PHONE}`} className="mt-3 block text-sm text-foreground/70 focus-ring">
             091 160 91 57
           </a>
         </div>
         <div className="card-hover col-span-2 rounded-2xl border border-border bg-card p-6 text-center">
-          <p className="tracking-widget text-cream/60">{t("location")}</p>
+          <p className="tracking-widget text-foreground/60">{t("location")}</p>
           <p className="mt-3 text-sm text-foreground/70">
             Ararat-Kara Road, Wesen area,
             <br />

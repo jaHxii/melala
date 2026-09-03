@@ -19,6 +19,7 @@ function AdminCafe() {
   const [sections, setSections] = useState<DbSection[]>([]);
   const [items, setItems] = useState<DbMenuItem[]>([]);
   const [fetching, setFetching] = useState(true);
+  const [query, setQuery] = useState("");
 
   const loadData = useCallback(async () => {
     setFetching(true);
@@ -54,6 +55,21 @@ function AdminCafe() {
     },
     [sections, loadData],
   );
+
+  const q = query.trim().toLowerCase();
+  const visibleSections = q
+    ? sections.filter(
+        (s) => s.name_en.toLowerCase().includes(q) || (s.name_am ?? "").toLowerCase().includes(q),
+      )
+    : sections;
+  const visibleItems = q
+    ? items.filter(
+        (i) =>
+          i.name_en.toLowerCase().includes(q) ||
+          (i.name_am ?? "").toLowerCase().includes(q) ||
+          (i.description_en ?? "").toLowerCase().includes(q),
+      )
+    : items;
 
   if (loading || !user) {
     return null;
@@ -97,7 +113,48 @@ function AdminCafe() {
               {sections.length} sections &middot; {items.length} items
             </p>
           </div>
+          <a
+            href="/cafe"
+            target="_blank"
+            rel="noreferrer"
+            title="Open the live cafe menu in a new tab"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M15 3h6v6" />
+              <path d="M10 14 21 3" />
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            </svg>
+          </a>
         </div>
+      </div>
+
+      {/* Search */}
+      <div className="mx-auto max-w-3xl px-4 pt-4">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search items and sections…"
+          aria-label="Search cafe menu"
+          className="w-full rounded-xl px-4 py-2.5 text-sm"
+          style={{
+            border: "1px solid var(--border)",
+            background: "var(--card)",
+            color: "var(--foreground)",
+          }}
+        />
       </div>
 
       {/* Content */}
@@ -117,11 +174,11 @@ function AdminCafe() {
           </div>
         ) : (
           <div className="space-y-4">
-            {sections.map((section, index) => (
+            {visibleSections.map((section, index) => (
               <SectionEditor
                 key={section.id}
                 section={section}
-                items={items.filter((i) => i.section_id === section.id)}
+                items={visibleItems.filter((i) => i.section_id === section.id)}
                 onUpdate={loadData}
                 onMoveUp={index > 0 ? () => handleMoveSection(index, -1) : undefined}
                 onMoveDown={

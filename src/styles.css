@@ -238,6 +238,11 @@
   letter-spacing: 0.08em;
 }
 
+/* Ethiopic glyphs need a touch more line-height than Latin */
+.font-ethiopic {
+  line-height: 1.7;
+}
+
 @utility display-title {
   font-family: var(--font-display);
   font-weight: 500;
@@ -432,6 +437,8 @@
   font-size: 1.125rem;
   color: var(--dark-brown);
   line-height: 1.3;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 @utility menu-item-desc {
@@ -440,6 +447,11 @@
   opacity: 0.8;
   line-height: 1.5;
   margin-top: 0.125rem;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @utility menu-price {

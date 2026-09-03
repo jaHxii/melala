@@ -99,6 +99,30 @@ function AdminPayments() {
               {methods.length} method(s) · changes appear on /payment immediately
             </p>
           </div>
+          <a
+            href="/payment?from=cafe"
+            target="_blank"
+            rel="noreferrer"
+            title="Open the live payment page in a new tab"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors"
+            style={{ color: "var(--muted-foreground)" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M15 3h6v6" />
+              <path d="M10 14 21 3" />
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            </svg>
+          </a>
         </div>
       </div>
 

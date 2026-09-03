@@ -123,7 +123,7 @@ function PaymentPage() {
   const [stale, setStale] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [zoomMethod, setZoomMethod] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
 
   const loadMethods = useCallback(async () => {
     const result = await fetchPaymentMethods();
@@ -165,6 +165,27 @@ function PaymentPage() {
   }, []);
 
   const selected = methods.find((m) => m.name === selectedMethod);
+
+  const copyAccount = useCallback(async (account: string) => {
+    try {
+      await navigator.clipboard.writeText(account);
+    } catch {
+      // Fallback for non-HTTPS or unsupported browsers
+      const input = document.createElement("input");
+      input.value = account;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+    }
+    try {
+      navigator.vibrate?.(10);
+    } catch {
+      /* vibrate not supported */
+    }
+    setCopiedAccount(account);
+    setTimeout(() => setCopiedAccount((cur) => (cur === account ? null : cur)), 1500);
+  }, []);
 
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -213,52 +234,85 @@ function PaymentPage() {
 
       {/* Step 1: Select payment method */}
       {!selectedMethod && (
-        <div className="mt-12 grid w-full max-w-md gap-4">
-          {methods.map((method) => (
-            <button
-              key={method.name}
-              type="button"
-              onClick={() => handleSelect(method.name)}
-              className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-all hover:border-cream hover:shadow-lg hover:shadow-cream/5 active:scale-[0.98] focus-ring"
-            >
-              <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream p-2">
-                <img
-                  src={method.logo}
-                  alt={`${method.name} logo`}
-                  className="h-full w-full object-contain"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-foreground">{method.name}</p>
-                <p className="mt-0.5 text-xs text-foreground/60">{method.detail}</p>
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0 text-foreground/40"
+        <div className="mt-10 w-full max-w-md">
+          <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/50">
+            {t("payStepChoose")}
+          </p>
+          <div className="grid gap-4">
+            {methods.map((method) => (
+              <div
+                key={method.name}
+                className="rounded-2xl border border-border bg-card p-5 transition-all hover:border-cream hover:shadow-lg hover:shadow-cream/5"
               >
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          ))}
+                <button
+                  type="button"
+                  onClick={() => handleSelect(method.name)}
+                  className="flex w-full items-center gap-4 text-left focus-ring rounded-xl"
+                >
+                  <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-cream p-2">
+                    <img
+                      src={method.logo}
+                      alt={`${method.name} logo`}
+                      className="h-full w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-foreground">{method.name}</p>
+                    <p className="mt-0.5 text-xs text-foreground/60">{method.detail}</p>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-foreground/40"
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+                <div
+                  className="mt-3 flex items-center gap-3 border-t pt-3"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <span className="text-xs text-foreground/60">Account:</span>
+                  <code className="min-w-0 flex-1 truncate font-mono text-sm font-bold tracking-wider text-foreground">
+                    {method.account}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => copyAccount(method.account)}
+                    className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-bold transition-all active:scale-95 focus-ring ${
+                      copiedAccount === method.account
+                        ? "border-green-500 bg-green-500/10 text-green-500"
+                        : "border-border bg-secondary text-foreground hover:border-cream hover:bg-cream hover:text-brand"
+                    }`}
+                    aria-label={`Copy account number ${method.account}`}
+                  >
+                    {copiedAccount === method.account ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Step 2: Show QR code for selected method */}
       {selected && (
         <div className="mt-10 flex flex-col items-center">
+          <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/50">
+            {t("payStepScan")}
+          </p>
           <button
             type="button"
             onClick={() => setSelectedMethod(null)}
@@ -295,7 +349,8 @@ function PaymentPage() {
               decoding="async"
             />
           </button>
-          <p className="mt-4 text-xs text-foreground/50">Tap QR code to zoom</p>
+          <p className="mt-4 text-xs text-foreground/60">{t("scanHint")}</p>
+          <p className="mt-1 text-[11px] text-foreground/40">Tap QR code to zoom</p>
 
           {/* Account owner name */}
           <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3 text-center">
@@ -312,32 +367,15 @@ function PaymentPage() {
             </code>
             <button
               type="button"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(selected.account);
-                  navigator.vibrate?.(10);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1500);
-                } catch {
-                  // Fallback for non-HTTPS or unsupported browsers
-                  const input = document.createElement("input");
-                  input.value = selected.account;
-                  document.body.appendChild(input);
-                  input.select();
-                  document.execCommand("copy");
-                  document.body.removeChild(input);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1500);
-                }
-              }}
+              onClick={() => copyAccount(selected.account)}
               className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-bold transition-all active:scale-95 focus-ring ${
-                copied
+                copiedAccount === selected.account
                   ? "border-green-500 bg-green-500/10 text-green-500"
                   : "border-border bg-secondary text-foreground hover:border-cream hover:bg-cream hover:text-brand"
               }`}
               aria-label={`Copy account number ${selected.account}`}
             >
-              {copied ? "Copied" : "Copy"}
+              {copiedAccount === selected.account ? "Copied" : "Copy"}
             </button>
           </div>
           <p className="mt-8 text-center text-xs tracking-[0.2em] text-foreground/50 uppercase">

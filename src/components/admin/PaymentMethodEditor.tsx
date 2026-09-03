@@ -6,6 +6,7 @@ import {
   createPaymentMethod,
   uploadPaymentImage,
 } from "@/lib/payment-db";
+import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
 /* ── Small shared pieces ──────────────────────────────────────── */
 
@@ -192,7 +193,19 @@ export function PaymentMethodEditor({
     else setError("Failed to delete. Are you logged in?");
   }, [method.id, onUpdate]);
 
+  const dirty =
+    editing &&
+    (name !== method.name ||
+      detail !== method.detail ||
+      account !== method.account ||
+      accountNameEn !== method.account_name_en ||
+      accountNameAm !== (method.account_name_am ?? "") ||
+      imageUrl !== method.image_url ||
+      logoUrl !== method.logo_url);
+  useDirtyGuard(dirty);
+
   const handleCancel = useCallback(() => {
+    if (dirty && !window.confirm("Discard unsaved changes?")) return;
     setName(method.name);
     setDetail(method.detail);
     setAccount(method.account);
@@ -202,7 +215,7 @@ export function PaymentMethodEditor({
     setLogoUrl(method.logo_url);
     setEditing(false);
     setError("");
-  }, [method]);
+  }, [method, dirty]);
 
   return (
     <div
@@ -262,7 +275,7 @@ export function PaymentMethodEditor({
               disabled={!canMoveUp}
               aria-label={`Move ${method.name} up`}
               title="Move up"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
               style={{ border: "1px solid var(--border)", color: "var(--muted-foreground)" }}
             >
               <svg
@@ -287,7 +300,7 @@ export function PaymentMethodEditor({
               disabled={!canMoveDown}
               aria-label={`Move ${method.name} down`}
               title="Move down"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all disabled:cursor-default disabled:opacity-25"
               style={{ border: "1px solid var(--border)", color: "var(--muted-foreground)" }}
             >
               <svg

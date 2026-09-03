@@ -205,6 +205,7 @@ function HomeFooter() {
 /* ── Error / Loading / 404 ──────────────────────────────────────── */
 
 function NotFoundComponent() {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -214,8 +215,8 @@ function NotFoundComponent() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
-          <Link to="/" className="btn-primary focus-ring">
-            Go home
+          <Link to="/cafe" className="btn-primary focus-ring">
+            {t("goToMenu")}
           </Link>
         </div>
       </div>
@@ -226,6 +227,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   reportError(error, "error");
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -234,7 +236,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Something went wrong on our end. You can try refreshing or go to the menu.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -246,8 +248,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Try again
           </button>
-          <Link to="/" className="btn-secondary focus-ring">
-            Go home
+          <Link to="/cafe" className="btn-secondary focus-ring">
+            {t("goToMenu")}
           </Link>
         </div>
       </div>

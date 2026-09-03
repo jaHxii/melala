@@ -1,6 +1,7 @@
 import { useState, useCallback, type FormEvent } from "react";
 import type { DbMenuItem } from "@/lib/menu-db";
 import { updateMenuItem, deleteMenuItem } from "@/lib/menu-db";
+import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
 type ItemEditorProps = {
   item: DbMenuItem;
@@ -70,7 +71,18 @@ export function ItemEditor({
     }
   }, [item.id, onUpdate]);
 
+  const dirty =
+    editing &&
+    (nameEn !== item.name_en ||
+      nameAm !== (item.name_am ?? "") ||
+      descEn !== (item.description_en ?? "") ||
+      descAm !== (item.description_am ?? "") ||
+      price !== String(item.price) ||
+      available !== item.available);
+  useDirtyGuard(dirty);
+
   const handleCancel = useCallback(() => {
+    if (dirty && !window.confirm("Discard unsaved changes?")) return;
     setNameEn(item.name_en);
     setNameAm(item.name_am ?? "");
     setDescEn(item.description_en ?? "");
@@ -79,7 +91,7 @@ export function ItemEditor({
     setAvailable(item.available);
     setEditing(false);
     setError("");
-  }, [item]);
+  }, [item, dirty]);
 
   /* ── Edit Form ────────────────────────────────────────────── */
 
@@ -281,7 +293,7 @@ export function ItemEditor({
             disabled={!canMoveUp}
             aria-label={`Move ${item.name_en} up`}
             title="Move up"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
+            className="flex h-7 w-7 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
             style={{ color: "var(--muted-foreground)" }}
           >
             <svg
@@ -304,7 +316,7 @@ export function ItemEditor({
             disabled={!canMoveDown}
             aria-label={`Move ${item.name_en} down`}
             title="Move down"
-            className="flex h-6 w-6 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
+            className="flex h-7 w-7 items-center justify-center rounded-md transition-colors disabled:cursor-default disabled:opacity-25"
             style={{ color: "var(--muted-foreground)" }}
           >
             <svg
