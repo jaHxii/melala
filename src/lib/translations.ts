@@ -22,6 +22,7 @@ export const translations = {
     paymentTitle: "Payment",
     paymentDescription: "Scan the code for your preferred payment method.",
     showConfirmation: "Please show your payment confirmation to a member of staff",
+    accountOwner: "Account Owner Name",
 
     english: "English",
     amharic: "Amharic",
@@ -47,6 +48,7 @@ export const translations = {
     paymentTitle: "ክፍያ",
     paymentDescription: "ለምርጥ የክፍያ መንገድዎ ኮዱን እስካን ያድርጉ።",
     showConfirmation: "እባክዎ የክፍያ ማረጋገጫዎን ለሠራተኛ ያሳዩ",
+    accountOwner: "የአካውንቱ ባለቤት ስም",
     developedBy: "Developed by",
     language: "ቋንቋ",
     english: "እንግሊዝኛ",

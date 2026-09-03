@@ -246,8 +246,15 @@ function PaymentPage() {
           </button>
           <p className="mt-4 text-xs text-foreground/50">Tap QR code to zoom</p>
 
+          {/* Account owner name */}
+          <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3 text-center">
+            <p className="text-xs text-foreground/60">{t("accountOwner")}</p>
+            <p className="mt-1 text-sm font-bold text-foreground">{selected.accountName}</p>
+            <p className="mt-0.5 text-xs text-foreground/70">{selected.accountNameAm}</p>
+          </div>
+
           {/* Copiable account number */}
-          <div className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
             <span className="text-sm text-foreground/60">Account:</span>
             <code className="flex-1 font-mono text-base font-bold tracking-wider text-foreground">
               {selected.account}
