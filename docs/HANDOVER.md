@@ -70,6 +70,22 @@ arrows.
    `public/sitemap.xml`, then redeploy. Re-print QRs afterwards is **not**
    needed (QRs point at paths, not the host) — actually verify by scanning.
 
+## Admin credentials & access
+
+The admin login (`/admin/login`) is a Supabase Auth email/password account.
+The app never rotates or expires passwords, so one saved account works
+indefinitely — handing over the existing account as-is is fine.
+
+- **Store the credentials in a password manager** (1Password, Bitwarden,
+  Google Password Manager) or a written note kept by the owner. Never put
+  them in the repo, this doc, or any file that ships with the site.
+- **Forgot the password?** Supabase → Authentication → Users → the user →
+  **Reset password** (or send a new invite). The menu data is untouched —
+  only the password changes.
+- **Optional:** create a second user (Authentication → Users → Invite) if the
+  client team should have its own login separate from the developer's.
+  Not required.
+
 ## Runbooks
 
 ### Redeploy / rollback
