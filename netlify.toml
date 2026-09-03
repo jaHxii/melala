@@ -4,3 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY are PUBLIC by design (anon key is
+  # shipped in the client bundle; Supabase RLS protects the data). Vite inlines
+  # them into the SSR function bundle, so omit them from secret scanning.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
