@@ -185,13 +185,13 @@ function HomeFooter() {
           <p className="text-xs text-foreground/60">
             © {new Date().getFullYear()} Melala Cafe & Restaurant. All rights reserved.
           </p>
-          <p className="mt-1 text-xs text-foreground/40">
+          <p className="mt-1.5 text-[10px] tracking-wide text-foreground/30">
             Developed by{" "}
             <a
               href="https://t.me/cloud_xii"
               target="_blank"
               rel="noreferrer"
-              className="text-foreground/60 transition-colors hover:text-foreground focus-ring"
+              className="underline decoration-foreground/20 underline-offset-2 transition-colors hover:text-foreground/60 focus-ring"
             >
               cloud_xii
             </a>

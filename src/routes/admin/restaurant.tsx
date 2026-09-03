@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { fetchMenuItems, swapSectionOrder, type DbSection, type DbMenuItem } from "@/lib/menu-db";
 import { SectionEditor, AddSectionForm } from "@/components/admin/SectionEditor";
+import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/restaurant")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
@@ -191,6 +192,7 @@ function AdminRestaurant() {
             <AddSectionForm type="restaurant" onAdded={loadData} />
           </div>
         )}
+        <DevCredit />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { paymentMethods } from "@/data/paymentMethods";
 import { fetchPaymentMethods, toPaymentMethods, type PaymentMethod } from "@/lib/payment-db";
 import { readPaymentCache, writePaymentCache } from "@/lib/menu-cache";
 import { SectionBadge } from "@/components/menu";
+import { DevCredit } from "@/components/DevCredit";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { useTheme } from "@/lib/theme";
@@ -390,6 +391,8 @@ function PaymentPage() {
           {t("backToMenu")}
         </Link>
       </div>
+
+      <DevCredit />
 
       {/* Zoom modal */}
       {zoomMethod && selected && (

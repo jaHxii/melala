@@ -7,6 +7,7 @@ import {
   StickyPayButton,
   BackToTopButton,
 } from "@/components/menu";
+import { DevCredit } from "@/components/DevCredit";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
@@ -111,6 +112,7 @@ function CafeMenuPage() {
         />
         <MenuGrid sections={menuSections} filter={activeCategory} />
         <BackToTopButton />
+        <DevCredit />
         <StickyPayButton from="cafe" />
       </div>
     </div>

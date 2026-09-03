@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { fetchMenuItems } from "@/lib/menu-db";
+import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
@@ -225,6 +226,8 @@ function AdminDashboard() {
             </p>
           </Link>
         </div>
+
+        <DevCredit />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import {
   type DbPaymentMethod,
 } from "@/lib/payment-db";
 import { PaymentMethodEditor, AddPaymentMethodForm } from "@/components/admin/PaymentMethodEditor";
+import { DevCredit } from "@/components/DevCredit";
 
 export const Route = createFileRoute("/admin/payments")({
   head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
@@ -157,6 +158,7 @@ function AdminPayments() {
             <AddPaymentMethodForm onAdded={loadData} />
           </div>
         )}
+        <DevCredit />
       </div>
     </div>
   );
