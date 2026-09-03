@@ -184,7 +184,7 @@ export function MenuHeader({
       />
       <p className="tracking-widget text-cream/60">{eyebrow}</p>
       <h1 className="section-heading mt-3 uppercase">
-        <span className="brand-coffee">Melala</span>
+        <span className="brand-coffee">{title || "Melala"}</span>
       </h1>
       <div className="mx-auto mt-5 h-px w-24 bg-border" />
     </header>
@@ -307,11 +307,7 @@ export function MenuGrid({
   return (
     <div className="mx-auto max-w-5xl gap-x-10 pt-6 lg:columns-2">
       {filtered.map((section, i) => (
-        <div
-          key={section.category}
-          className="mb-8 break-inside-avoid"
-          id={`section-${section.category.toLowerCase().replace(/\s+/g, "-")}`}
-        >
+        <div key={section.category} className="mb-8 break-inside-avoid">
           {i > 0 && !filter && <SectionDivider />}
           <MenuSectionCard
             section={section}

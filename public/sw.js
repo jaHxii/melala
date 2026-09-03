@@ -1,4 +1,4 @@
-const CACHE_NAME = "melala-v3";
+const CACHE_NAME = "melala-v4";
 const STATIC_ASSETS = [
   "/",
   "/cafe",

@@ -266,6 +266,15 @@ export async function createMenuItem(
   const cleanNameEn = sanitize(item.name_en);
   if (!cleanNameEn || !Number.isFinite(item.price) || item.price < 0) return null;
 
+  // Reject duplicate item names within the same section
+  const { data: duplicate } = await supabase
+    .from("menu_items")
+    .select("id")
+    .eq("section_id", sectionId)
+    .eq("name_en", cleanNameEn)
+    .maybeSingle();
+  if (duplicate) return null;
+
   // Get max sort_order for this section
   const { data: existing } = await supabase
     .from("menu_items")
