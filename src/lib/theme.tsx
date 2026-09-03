@@ -11,7 +11,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  // The <head> inline script already applied .dark before React hydrated, so
+  // read it lazily to avoid a one-frame flash of the wrong theme logos.
+  const [theme, setThemeState] = useState<Theme>(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light",
+  );
 
   useEffect(() => {
     const saved = localStorage.getItem("melala-theme") as Theme | null;

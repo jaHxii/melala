@@ -4,6 +4,8 @@ import { updateMenuItem, deleteMenuItem, duplicateMenuItem, restoreMenuItem } fr
 import { registerUndo } from "@/lib/delete-undo";
 import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
+const priceFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
 type ItemEditorProps = {
   item: DbMenuItem;
   onUpdate: () => void;
@@ -402,7 +404,7 @@ export function ItemEditor({
           color: "var(--gold, oklch(0.68 0.12 71))",
         }}
       >
-        {item.price}
+        {priceFormatter.format(item.price)}
       </span>{" "}
       <div className="flex shrink-0 flex-wrap justify-end gap-1">
         <button

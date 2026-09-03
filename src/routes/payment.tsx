@@ -34,7 +34,11 @@ export const Route = createFileRoute("/payment")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>): PaymentSearch => {
-    return { from: (search.from as string) || "cafe" };
+    const from =
+      typeof search.from === "string" && (search.from === "cafe" || search.from === "restaurant")
+        ? search.from
+        : "cafe";
+    return { from };
   },
   component: PaymentPage,
 });
@@ -285,7 +289,7 @@ function PaymentPage() {
                   className="mt-3 flex items-center gap-3 border-t pt-3"
                   style={{ borderColor: "var(--border)" }}
                 >
-                  <span className="text-xs text-foreground/60">Account:</span>
+                  <span className="text-xs text-foreground/60">{t("accountLabel")}</span>
                   <code className="min-w-0 flex-1 truncate font-mono text-sm font-bold tracking-wider text-foreground">
                     {method.account}
                   </code>
@@ -297,9 +301,9 @@ function PaymentPage() {
                         ? "border-green-500 bg-green-500/10 text-green-500"
                         : "border-border bg-secondary text-foreground hover:border-cream hover:bg-cream hover:text-brand"
                     }`}
-                    aria-label={`Copy account number ${method.account}`}
+                    aria-label={`${t("copy")} account number ${method.account}`}
                   >
-                    {copiedAccount === method.account ? "Copied" : "Copy"}
+                    {copiedAccount === method.account ? t("copied") : t("copy")}
                   </button>
                 </div>
               </div>
@@ -333,7 +337,7 @@ function PaymentPage() {
               <path d="m12 19-7-7 7-7" />
               <path d="M19 12H5" />
             </svg>
-            Change method
+            {t("changeMethod")}
           </button>
           <SectionBadge label={selected.name} />
           <button
@@ -351,7 +355,7 @@ function PaymentPage() {
             />
           </button>
           <p className="mt-4 text-xs text-foreground/60">{t("scanHint")}</p>
-          <p className="mt-1 text-[11px] text-foreground/40">Tap QR code to zoom</p>
+          <p className="mt-1 text-[11px] text-foreground/40">{t("tapToZoom")}</p>
 
           {/* Account owner name */}
           <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3 text-center">
@@ -374,9 +378,9 @@ function PaymentPage() {
                   ? "border-green-500 bg-green-500/10 text-green-500"
                   : "border-border bg-secondary text-foreground hover:border-cream hover:bg-cream hover:text-brand"
               }`}
-              aria-label={`Copy account number ${selected.account}`}
+              aria-label={`${t("copy")} account number ${selected.account}`}
             >
-              {copiedAccount === selected.account ? "Copied" : "Copy"}
+              {copiedAccount === selected.account ? t("copied") : t("copy")}
             </button>
           </div>
           <p className="mt-8 text-center text-xs tracking-[0.2em] text-foreground/50 uppercase">

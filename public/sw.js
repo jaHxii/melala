@@ -1,4 +1,4 @@
-const CACHE_NAME = "melala-v4";
+const CACHE_NAME = "melala-v5";
 const STATIC_ASSETS = [
   "/",
   "/cafe",
@@ -6,6 +6,7 @@ const STATIC_ASSETS = [
   "/payment",
   "/cafe-dark-logo.png",
   "/logo.webp",
+  "/icon-192.png",
   "/favicon.png",
   "/manifest.json",
   "/offline.html",

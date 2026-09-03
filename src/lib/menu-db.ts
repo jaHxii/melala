@@ -113,10 +113,12 @@ export function toMenuSections(dbSections: DbSection[], dbItems: DbMenuItem[]): 
         .map((item) => {
           const itemLocal = item.name_am ?? undefined;
           const desc = item.description_en ?? undefined;
+          const descLocal = item.description_am ?? undefined;
           return {
             name: item.name_en,
             ...(itemLocal !== undefined && { local: itemLocal }),
             ...(desc !== undefined && { description: desc }),
+            ...(descLocal !== undefined && { descriptionLocal: descLocal }),
             price: item.price,
           };
         }),

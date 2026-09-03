@@ -7,20 +7,35 @@ import { useLanguage } from "@/lib/language";
 import { useTheme } from "@/lib/theme";
 import { useState, useCallback, useRef, type ReactNode } from "react";
 
+const priceFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
 /* ── Section Badge ──────────────────────────────────────────────── */
 
 export function SectionBadge({ label, local }: { label: string; local?: string | undefined }) {
+  const { locale } = useLanguage();
+  const amFirst = locale === "am" && !!local;
+  const first = amFirst ? label : local;
+  const second = amFirst ? local : label;
   return (
     <span
       className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold uppercase tracking-[0.16em]"
       style={{ backgroundColor: "var(--clay)", color: "var(--berbere)" }}
     >
       {local ? (
-        <span className="font-ethiopic text-xs font-medium normal-case tracking-normal opacity-70">
-          {local}&nbsp;/&nbsp;
-        </span>
-      ) : null}
-      {label}
+        <>
+          <span
+            className={`text-xs font-medium normal-case tracking-normal opacity-70 ${
+              amFirst ? "" : "font-ethiopic"
+            }`}
+          >
+            {first}
+          </span>
+          <span aria-hidden="true">&nbsp;/&nbsp;</span>
+          <span className={amFirst ? "font-ethiopic" : ""}>{second}</span>
+        </>
+      ) : (
+        label
+      )}
     </span>
   );
 }
@@ -28,8 +43,15 @@ export function SectionBadge({ label, local }: { label: string; local?: string |
 /* ── Menu Item Row (with tap-to-highlight) ──────────────────────── */
 
 function MenuItemRow({ item }: { item: MenuItemType }) {
+  const { locale } = useLanguage();
   const [tapped, setTapped] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Amharic-first when the customer is reading Amharic
+  const amFirst = locale === "am" && !!item.local;
+  const primaryName = amFirst ? item.local! : item.name;
+  const secondaryName = amFirst ? item.name : item.local;
+  const desc = locale === "am" && item.descriptionLocal ? item.descriptionLocal : item.description;
 
   const handleTap = useCallback(() => {
     try {
@@ -53,18 +75,18 @@ function MenuItemRow({ item }: { item: MenuItemType }) {
       }}
     >
       <div className="min-w-0 flex-1">
-        {item.local ? (
-          <p className="font-ethiopic text-sm text-foreground/70">{item.local}</p>
+        {secondaryName ? (
+          <p className="font-ethiopic text-sm text-foreground/70">{secondaryName}</p>
         ) : null}
-        <h3 className="menu-item-name">{item.name}</h3>
-        {item.description ? <p className="menu-item-desc">{item.description}</p> : null}
+        <h3 className={`menu-item-name ${amFirst ? "font-ethiopic" : ""}`}>{primaryName}</h3>
+        {desc ? <p className="menu-item-desc">{desc}</p> : null}
       </div>
       <span
         aria-hidden="true"
         className="min-w-6 flex-1 self-center border-b-2 border-dotted border-foreground/30"
       />
       <span className={`menu-price-pill transition-all duration-300 ${tapped ? "scale-110" : ""}`}>
-        {item.price}
+        {priceFormatter.format(item.price)}
       </span>
     </li>
   );

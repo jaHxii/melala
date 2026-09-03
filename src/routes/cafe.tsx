@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   MenuGrid,
   MenuHeader,
@@ -46,6 +46,7 @@ function CafeMenuPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [menuSections, setMenuSections] = useState<MenuSection[]>(cafeMenu);
   const [stale, setStale] = useState(false);
+  const [query, setQuery] = useState("");
 
   const loadMenu = useCallback(async () => {
     const result = await fetchMenuItems("cafe");
@@ -68,6 +69,26 @@ function CafeMenuPage() {
   useEffect(() => {
     loadMenu();
   }, [loadMenu]);
+
+  const q = query.trim().toLowerCase();
+  const shownSections = useMemo(() => {
+    if (!q) return menuSections;
+    return menuSections
+      .map((section) => {
+        const sectionMatch =
+          section.category.toLowerCase().includes(q) ||
+          (section.local ?? "").toLowerCase().includes(q);
+        if (sectionMatch) return section;
+        const items = section.items.filter(
+          (i) =>
+            i.name.toLowerCase().includes(q) ||
+            (i.local ?? "").toLowerCase().includes(q) ||
+            (i.description ?? "").toLowerCase().includes(q),
+        );
+        return items.length > 0 ? { ...section, items } : null;
+      })
+      .filter((s): s is MenuSection => s !== null);
+  }, [q, menuSections]);
 
   return (
     <div className="menu-bg-solid min-h-screen">
@@ -105,12 +126,27 @@ function CafeMenuPage() {
         <p className="mt-4 text-center text-xs tracking-[0.2em] text-muted-foreground uppercase">
           {t("allPricesInEtb")}
         </p>
+        <div className="mx-auto mt-4 w-full max-w-md">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("searchMenu")}
+            aria-label={t("searchMenu")}
+            className="w-full rounded-full border px-5 py-2.5 text-sm focus-ring"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--card)",
+              color: "var(--foreground)",
+            }}
+          />
+        </div>
         <CategoryFilter
-          sections={menuSections}
+          sections={shownSections}
           activeCategory={activeCategory}
           onSelect={setActiveCategory}
         />
-        <MenuGrid sections={menuSections} filter={activeCategory} />
+        <MenuGrid sections={shownSections} filter={activeCategory} />
         <BackToTopButton />
         <DevCredit />
         <StickyPayButton from="cafe" />

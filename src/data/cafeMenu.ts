@@ -2,6 +2,7 @@ export type MenuItem = {
   name: string;
   local?: string;
   description?: string;
+  descriptionLocal?: string;
   price: number;
 };
 
