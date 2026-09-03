@@ -6,6 +6,7 @@ import { useInView } from "@/hooks/use-in-view";
 import { useLanguage } from "@/lib/language";
 
 const GOOGLE_MAPS_LINK = "https://maps.google.com/maps?q=2RHP+VCW,+Addis+Ababa";
+const WHATSAPP_LINK = "https://wa.me/251911609157";
 const PHONE = "+251911609157";
 
 const structuredData = {
@@ -84,7 +85,9 @@ function Home() {
         >
           <span className="brand-coffee uppercase">Melala</span>
           <br />
-          <span className="text-3xl sm:text-4xl">{t("cafeAndRestaurant")}</span>
+          <span className="brand-berbere mt-4 block text-3xl font-medium tracking-[0.32em] sm:text-4xl">
+            {t("cafeAndRestaurant")}
+          </span>
         </h1>
         <div className="mx-auto mt-6 h-px w-24 bg-border" />
         <p className="mt-6 max-w-md text-sm leading-relaxed text-foreground/70 sm:text-base">
@@ -103,9 +106,22 @@ function Home() {
           <a href={`tel:${PHONE}`} className="btn-outline w-full sm:w-40">
             {t("callUs")}
           </a>
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-outline w-full sm:w-44"
+          >
+            WhatsApp
+          </a>
         </div>
 
-        <div className="mt-16 animate-float text-foreground/40">
+        <button
+          type="button"
+          onClick={() => document.getElementById("info")?.scrollIntoView({ behavior: "smooth" })}
+          className="focus-ring mt-16 animate-float text-foreground/40 transition-colors hover:text-foreground/70"
+          aria-label="Scroll to hours, contact and location"
+        >
           <svg
             width="24"
             height="24"
@@ -119,11 +135,13 @@ function Home() {
             <path d="M7 13l5 5 5-5" />
             <path d="M7 6l5 5 5-5" />
           </svg>
-        </div>
+        </button>
       </section>
 
       <section
+        id="info"
         ref={infoRef}
+        className={`grid scroll-mt-24 grid-cols-2 gap-4 pb-16 reveal ${infoVisible ? "visible" : ""}`}
         className={`grid grid-cols-2 gap-4 pb-16 reveal ${infoVisible ? "visible" : ""}`}
       >
         <div className="card-hover rounded-2xl border border-border bg-card p-6 text-center">
