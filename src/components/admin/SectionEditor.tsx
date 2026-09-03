@@ -73,11 +73,16 @@ export function SectionEditor({
       const current = items[index];
       const other = items[index + dir];
       if (!current || !other) return;
-      const ok = await swapMenuItemOrder(current.id, other.id);
-      if (ok) {
+      const result = await swapMenuItemOrder(current.id, other.id);
+      if (result.ok) {
         onUpdate();
       } else {
-        setError("Failed to reorder. Are you logged in?");
+        console.error("Reorder failed:", result.error);
+        setError(
+          result.error
+            ? `Failed to reorder: ${result.error}`
+            : "Failed to reorder. Are you logged in?",
+        );
       }
     },
     [items, onUpdate],

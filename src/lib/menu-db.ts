@@ -206,23 +206,35 @@ export async function updateSection(
   const { error } = await supabase.from("sections").update(clean).eq("id", id);
   return !error;
 }
+export type SwapResult = { ok: boolean; error?: string };
 
 /** Swap two sections' sort_order values (used by admin reordering). */
-export async function swapSectionOrder(idA: string, idB: string): Promise<boolean> {
-  if (!supabase) return false;
-  const { data } = await supabase.from("sections").select("id, sort_order").in("id", [idA, idB]);
-  if (!data || data.length !== 2) return false;
+export async function swapSectionOrder(idA: string, idB: string): Promise<SwapResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
+  const { data, error: readError } = await supabase
+    .from("sections")
+    .select("id, sort_order")
+    .in("id", [idA, idB]);
+  if (readError) return { ok: false, error: readError.message };
+  if (!data || data.length !== 2) {
+    return { ok: false, error: "Could not find both rows to swap." };
+  }
   const a = data.find((row) => row.id === idA);
   const b = data.find((row) => row.id === idB);
-  if (!a || !b) return false;
-  const { error } = await supabase.from("sections").upsert(
-    [
-      { id: idA, sort_order: b.sort_order },
-      { id: idB, sort_order: a.sort_order },
-    ],
-    { onConflict: "id" },
-  );
-  return !error;
+  if (!a || !b) return { ok: false, error: "Could not find both rows to swap." };
+
+  // Two plain updates avoid upsert/ON CONFLICT semantics and RLS quirks.
+  for (const row of [
+    { id: idA, sort_order: b.sort_order },
+    { id: idB, sort_order: a.sort_order },
+  ]) {
+    const { error } = await supabase
+      .from("sections")
+      .update({ sort_order: row.sort_order })
+      .eq("id", row.id);
+    if (error) return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }
 
 /* ── Delete Section ───────────────────────────────────────────── */
@@ -317,24 +329,33 @@ export async function updateMenuItem(
 
   const { error } = await supabase.from("menu_items").update(clean).eq("id", id);
   return !error;
-}
-
-/** Swap two items' sort_order values (used by admin reordering). */
-export async function swapMenuItemOrder(idA: string, idB: string): Promise<boolean> {
-  if (!supabase) return false;
-  const { data } = await supabase.from("menu_items").select("id, sort_order").in("id", [idA, idB]);
-  if (!data || data.length !== 2) return false;
+} /** Swap two items' sort_order values (used by admin reordering). */
+export async function swapMenuItemOrder(idA: string, idB: string): Promise<SwapResult> {
+  if (!supabase) return { ok: false, error: "Database is not configured." };
+  const { data, error: readError } = await supabase
+    .from("menu_items")
+    .select("id, sort_order")
+    .in("id", [idA, idB]);
+  if (readError) return { ok: false, error: readError.message };
+  if (!data || data.length !== 2) {
+    return { ok: false, error: "Could not find both rows to swap." };
+  }
   const a = data.find((row) => row.id === idA);
   const b = data.find((row) => row.id === idB);
-  if (!a || !b) return false;
-  const { error } = await supabase.from("menu_items").upsert(
-    [
-      { id: idA, sort_order: b.sort_order },
-      { id: idB, sort_order: a.sort_order },
-    ],
-    { onConflict: "id" },
-  );
-  return !error;
+  if (!a || !b) return { ok: false, error: "Could not find both rows to swap." };
+
+  // Two plain updates avoid upsert/ON CONFLICT semantics and RLS quirks.
+  for (const row of [
+    { id: idA, sort_order: b.sort_order },
+    { id: idB, sort_order: a.sort_order },
+  ]) {
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ sort_order: row.sort_order })
+      .eq("id", row.id);
+    if (error) return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }
 
 /* ── Delete Menu Item ─────────────────────────────────────────── */

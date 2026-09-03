@@ -45,8 +45,12 @@ function AdminRestaurant() {
       const from = sections[index];
       const to = sections[index + dir];
       if (!from || !to) return;
-      const ok = await swapSectionOrder(from.id, to.id);
-      if (ok) loadData();
+      const result = await swapSectionOrder(from.id, to.id);
+      if (result.ok) {
+        loadData();
+      } else {
+        console.error("Section reorder failed:", result.error);
+      }
     },
     [sections, loadData],
   );

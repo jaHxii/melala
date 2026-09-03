@@ -83,3 +83,4 @@ npx tsx scripts/seed-menu.ts             # apply (needs service-role key in .env
 | "Showing saved menu" banner on menu pages| Supabase unreachable from the browser/Netlify      |
 | Admin "Database unreachable" on dashboard| Same — check env vars + RLS                        |
 | Admin login error                        | User not invited, or project URL/key mismatch      |
+| Admin "Failed to reorder/delete" errors  | RLS write policies missing — run `0002` (admin write policies) |
