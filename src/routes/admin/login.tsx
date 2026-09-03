@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useCallback, type FormEvent } from "react";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { AdminProvider, useAdmin } from "@/lib/admin";
 import { useTheme } from "@/lib/theme";
 
@@ -16,6 +16,12 @@ function AdminLogin() {
   const { login, user } = useAdmin();
   const navigate = useNavigate();
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (user) {
+      navigate({ to: "/admin" });
+    }
+  }, [user, navigate]);
   const isLight = theme === "light";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,7 +47,6 @@ function AdminLogin() {
   );
 
   if (user) {
-    navigate({ to: "/admin" });
     return null;
   }
 

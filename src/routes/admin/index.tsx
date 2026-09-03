@@ -31,6 +31,12 @@ function AdminDashboard() {
     if (user) loadCounts();
   }, [user, loadCounts]);
 
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/admin/login" });
+    }
+  }, [loading, user, navigate]);
+
   if (loading) {
     return (
       <div
@@ -49,7 +55,6 @@ function AdminDashboard() {
   }
 
   if (!user) {
-    navigate({ to: "/admin/login" });
     return null;
   }
 
