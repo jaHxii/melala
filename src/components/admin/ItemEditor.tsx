@@ -1,6 +1,6 @@
 import { useState, useCallback, type FormEvent } from "react";
 import type { DbMenuItem } from "@/lib/menu-db";
-import { updateMenuItem, deleteMenuItem, duplicateMenuItem, restoreMenuItem } from "@/lib/menu-db";
+import { updateMenuItem, deleteMenuItem, restoreMenuItem } from "@/lib/menu-db";
 import { registerUndo } from "@/lib/delete-undo";
 import { useDirtyGuard } from "@/hooks/use-dirty-guard";
 
@@ -83,22 +83,6 @@ export function ItemEditor({
       setError(result.error ?? "Failed to delete.");
     }
   }, [item, onUpdate]);
-
-  const handleCopy = useCallback(async () => {
-    setError("");
-    const result = await duplicateMenuItem(item.id);
-    if (result.data) {
-      setSuccess(true);
-      window.setTimeout(() => setSuccess(false), 1500);
-      onUpdate();
-    } else if (result.reason === "duplicate") {
-      setError("Couldn't name the copy — too many existing copies. Edit one instead.");
-    } else if (result.reason === "db") {
-      setError("Failed to copy — check that you are logged in and the database is reachable.");
-    } else {
-      setError("Failed to copy this item.");
-    }
-  }, [item.id, onUpdate]);
 
   const dirty =
     editing &&
@@ -308,7 +292,7 @@ export function ItemEditor({
 
   return (
     <div
-      className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all"
+      className="flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 transition-all"
       style={{
         border: success ? "1px solid oklch(0.5 0.15 145 / 0.3)" : "1px solid var(--border)",
         background: success ? "oklch(0.5 0.15 145 / 0.05)" : "var(--background)",
@@ -364,9 +348,12 @@ export function ItemEditor({
           </button>
         </div>
       )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+      <div className="min-w-[160px] flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="min-w-0 flex-1 break-words text-sm font-semibold"
+            style={{ color: "var(--foreground)" }}
+          >
             {item.name_en}
           </span>
           {!item.available && (
@@ -407,18 +394,6 @@ export function ItemEditor({
         {priceFormatter.format(item.price)}
       </span>{" "}
       <div className="flex shrink-0 flex-wrap justify-end gap-1">
-        <button
-          type="button"
-          onClick={handleCopy}
-          title="Duplicate this item (adds a copy to the same section)"
-          className="rounded-lg border px-3 py-1.5 text-xs font-medium transition-all"
-          style={{
-            border: "1px solid var(--border)",
-            color: "var(--muted-foreground)",
-          }}
-        >
-          Copy
-        </button>
         <button
           type="button"
           onClick={() => setEditing(true)}

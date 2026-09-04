@@ -390,28 +390,6 @@ export async function setSectionItemsAvailability(
   return error ? { ok: false, error: error.message } : { ok: true };
 }
 
-/* ── Duplicate an item (variant creation) ──────────────────────── */
-
-export async function duplicateMenuItem(id: string): Promise<CreateResult<DbMenuItem>> {
-  if (!supabase) return { data: null, reason: "db" };
-  const { data: item } = await supabase.from("menu_items").select("*").eq("id", id).maybeSingle();
-  if (!item) return { data: null, reason: "invalid" };
-
-  for (let i = 2; i <= 4; i++) {
-    const suffix = i === 2 ? "(copy)" : `(copy ${i - 1})`;
-    const result = await createMenuItem(item.section_id, {
-      name_en: `${item.name_en} ${suffix}`,
-      name_am: item.name_am ?? undefined,
-      description_en: item.description_en ?? undefined,
-      description_am: item.description_am ?? undefined,
-      price: item.price,
-    });
-    if (result.data) return result;
-    if (result.reason !== "duplicate") return result;
-  }
-  return { data: null, reason: "duplicate" };
-}
-
 /* ── Undo helpers (re-insert captured rows) ────────────────────── */
 
 export async function restoreSection(section: DbSection, items: DbMenuItem[]): Promise<boolean> {
