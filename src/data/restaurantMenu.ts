@@ -1,136 +1,41 @@
 import type { MenuSection } from "./cafeMenu";
 
-// Mock content — replace with the real restaurant menu when available.
+// Restaurant menu — real content synced from the live Supabase database.
+// Used as the instant bundled menu before the DB responds and as the
+// fallback if the DB is ever unreachable. Re-sync after admin edits.
 export const restaurantMenu: MenuSection[] = [
   {
-    category: "Starters",
-    local: "መጀመሪያ",
+    category: "Main Non-Fasting",
+    local: "የፍስክ ምግቦች",
     items: [
-      {
-        name: "Sambusa (3 pcs)",
-        local: "ሳምቡሳ",
-        description: "Lentil or minced beef, crisp pastry",
-        price: 240,
-      },
-      {
-        name: "Chicken Wings",
-        local: "የዶሮ ክንፍ",
-        description: "Honey chili glaze, lime",
-        price: 460,
-      },
-      {
-        name: "Garlic Bread",
-        local: "ነጭ ሽንኩርት ዳቦ",
-        description: "Herb butter, parmesan",
-        price: 220,
-      },
-      { name: "Soup of the Day", local: "የቀኑ ሾርባ", price: 260 },
+      { name: "1 kg Raw Meat", local: "1 ኪሎ ጥሬ ስጋ", price: 4000 },
+      { name: "1/2 Raw Meat", local: "ግማሽ ኪሎ ጥሬ ስጋ", price: 2000 },
+      { name: "1  kg Special", local: "1 ኪሎ ስፔሻል", price: 4000 },
+      { name: "1/2 kg special", local: "ግማሽ ኪሎ ስፔሻል", price: 2000 },
+      { name: "1 kg Shekla", local: "1 ኪሎ ሸክላ", price: 4000 },
+      { name: "1/2 kg Shekla", local: "ግማሽ ኪሎ ሸክላ", price: 2000 },
+      { name: "1 kg Gas Light", local: "1 ኪሎ ጋዝ ላይት", price: 4000 },
+      { name: "1/2 kg Gas Light", local: "ግማሽ ኪሎ ጋዝ ላይት", price: 2000 },
+      { name: "Special Kitfo", local: "ስፔሻል ክትፎ", price: 1900 },
     ],
   },
   {
-    category: "Ethiopian Specials",
-    local: "የሀገር ምግብ",
+    category: "Fasting Foods",
+    local: "የፆም ምግቦች",
     items: [
-      {
-        name: "Doro Wot",
-        local: "ዶሮ ወጥ",
-        description: "Slow-cooked chicken, berbere, egg",
-        price: 720,
-      },
-      {
-        name: "Key Sega Wot",
-        local: "ቀይ ስጋ ወጥ",
-        description: "Beef stew with spiced butter",
-        price: 680,
-      },
-      {
-        name: "Tibs Special",
-        local: "ስፔሻል ጥብስ",
-        description: "Pan-seared beef, rosemary, jalapeño",
-        price: 750,
-      },
-      { name: "Shiro Feses", local: "ሽሮ ፍሰስ", price: 380 },
-      { name: "Beyaynetu", local: "በያይነቱ", description: "Assorted fasting platter", price: 420 },
-      {
-        name: "Kitfo Special",
-        local: "ስፔሻል ክትፎ",
-        description: "Minced beef, mitmita, ayib, gomen",
-        price: 890,
-      },
-    ],
-  },
-  {
-    category: "Main Course",
-    local: "ዋና ምግብ",
-    items: [
-      {
-        name: "Grilled Chicken Breast",
-        description: "Mashed potato, seasonal vegetables",
-        price: 780,
-      },
-      { name: "Beef Steak", description: "250g sirloin, pepper sauce, fries", price: 1150 },
-      { name: "Grilled Tilapia", description: "Lemon butter, rice pilaf", price: 860 },
-      { name: "Lamb Chops", description: "Rosemary jus, roast potato", price: 1250 },
-    ],
-  },
-  {
-    category: "Pizza",
-    items: [
-      { name: "Margherita", description: "Tomato, mozzarella, basil", price: 620 },
-      { name: "Beef Pepperoni", price: 820 },
-      { name: "Tuna & Onion", price: 790 },
-      { name: "Four Cheese", price: 880 },
-      { name: "Vegetariana", description: "Peppers, olives, mushroom, corn", price: 700 },
-    ],
-  },
-  {
-    category: "Pasta",
-    items: [
-      { name: "Spaghetti Bolognese", price: 640 },
-      { name: "Penne Arrabbiata", price: 560 },
-      { name: "Fettuccine Alfredo", description: "Cream, parmesan, chicken", price: 720 },
-      { name: "Seafood Linguine", price: 890 },
-    ],
-  },
-  {
-    category: "Burgers",
-    items: [
-      {
-        name: "Classic Beef Burger",
-        description: "Cheddar, lettuce, house sauce, fries",
-        price: 780,
-      },
-      { name: "Double Decker", price: 950 },
-      { name: "Crispy Chicken Burger", price: 720 },
-      { name: "Veggie Burger", price: 620 },
-    ],
-  },
-  {
-    category: "Salads",
-    items: [
-      { name: "Caesar Salad", price: 520 },
-      { name: "Greek Salad", price: 480 },
-      { name: "Avocado & Tuna Salad", price: 610 },
-      { name: "Garden Salad", price: 380 },
-    ],
-  },
-  {
-    category: "Desserts",
-    items: [
-      { name: "Chocolate Lava Cake", price: 340 },
-      { name: "Cheesecake", price: 320 },
-      { name: "Tiramisu", price: 360 },
-      { name: "Fruit Platter", price: 300 },
-    ],
-  },
-  {
-    category: "Drinks",
-    items: [
-      { name: "Soft Drinks", price: 105 },
-      { name: "600 ml Water", price: 75 },
-      { name: "Fresh Juice", price: 300 },
-      { name: "Coffee", price: 90 },
-      { name: "Tea", price: 45 },
+      { name: "Spaghetti With Tomato Sauce", local: "ፓስታ በ ስጎ", price: 315 },
+      { name: "Vegetables", local: "አትክልት", price: 325 },
+      { name: "Shiro and Tomato", local: "ሽሮ እና ቲማቲም", price: 350 },
+      { name: "Shiro and Misir", local: "ሽሮ እና ምስር", price: 400 },
+      { name: "Shiro Feses", local: "ሽሮ ፈሰስ", price: 300 },
+      { name: "Shiro Tegabino", local: "ሽሮ ተጋቢኖ", price: 380 },
+      { name: "Tomato Kurt", local: "ቲማቲም ቁርጥ", price: 300 },
+      { name: "Fasting Firfir", local: "የፆም ፍርፍር", price: 250 },
+      { name: "Misir Be-Shekla", local: "ምስር በሸክላ", price: 390 },
+      { name: "Rice With Vegetable", local: "ሩዝ በአትክልት", price: 325 },
+      { name: "Spagetti and Shiro", local: "ፓስታ እና ሽሮ", price: 400 },
+      { name: "Suf and Shiro", local: "ሱፍ እና ሽሮ", price: 350 },
+      { name: "Beyayinet", local: "በያይነት", price: 430 },
     ],
   },
 ];

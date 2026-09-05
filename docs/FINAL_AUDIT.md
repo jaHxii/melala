@@ -15,10 +15,10 @@ Food photography is intentionally excluded. Effort tags:
    box (filter items by EN/AM name + description) under the filter pills would
    serve repeat customers. The admin already has search — reuse the pattern.
 3. 🟢 **Sticky filter is solid** (offset below toggles, counts, "All" reset). Keep.
-4. 🟡 **First paint shows bundled data, then DB data swaps in.** If the DB menu
-   diverges from the bundled fallback, customers see a brief flash of old
-   content. Acceptable, but worth syncing `src/data/*.ts` to mirror the DB once
-   the real menu is entered (kills the flash and the mock-fallback risk).
+4. 🟢 **Bundled fallback synced to the DB** — the client entered the real
+   restaurant menu and `src/data/restaurantMenu.ts` now mirrors it (mock
+   marker removed). If the DB menu changes again, re-sync `src/data/*.ts` so
+   the pre-DB instant render never flashes stale content.
 5. 🟢 **Empty section cards are hidden** (done) — confirm with the client that a
    fully-hidden section disappearing is the intended behavior (it is, per the
    admin "Hide all" workflow).

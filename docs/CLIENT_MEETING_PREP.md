@@ -18,7 +18,7 @@ fully pushed & deployed) · Live: `melala.netlify.app`
 | Surface | What it is | Status |
 |---|---|---|
 | `/cafe` | Cafe menu — 78 items, bilingual EN/AM, search, dark/light theme | ✅ Live, client verified counts |
-| `/restaurant` | Restaurant menu — 40 items, same experience | ✅ Live, client verified counts |
+| `/restaurant` | Restaurant menu — client's real menu (Main Non-Fasting + Fasting Foods, 22 items), same experience | ✅ Live, client entered real menu |
 | `/payment` | Payment page — Telebirr, CBE, Bank of Abyssinia: real QRs, account copy button, zoom, bilingual | ✅ Live, client scanned all 3 QRs — work |
 | `/admin` | Admin panel: edit/add/delete/hide/reorder menus, manage payment methods, stats, undo, password reset | ✅ Live |
 | `/` | Business page (brand/SEO face — customers arrive by QR and never see it) | ✅ Live |
@@ -163,11 +163,11 @@ names, account numbers, owner names, **QR images**, logos, show/hide, order.
 ### Decision D — Menu content sign-off (text only, no photos — per client)
 
 - Cafe menu: client verified 78 items.
-- Restaurant menu: 40 items exist; the bundled fallback data still carries a
-  "mock content" marker until the client enters/confirms the real restaurant
-  menu (they planned to input real data via admin).
+- Restaurant menu: the client's real menu is entered in the DB (Main
+  Non-Fasting + Fasting Foods); the bundled fallback data mirrors it and no
+  longer carries a mock marker.
 - **Meeting ask:** get explicit sign-off that cafe items/prices/Amharic names
-  are final, and a date for the restaurant menu entry.
+  are final, plus a look-over of the restaurant menu the client entered.
 - Food photos were explicitly excluded — note that as a *future* upgrade
   (photos sell food; would be a small addition later, not a blocker).
 
@@ -279,7 +279,7 @@ Renewal note: domain ~$12/yr; Supabase Pro $25/mo only if ever chosen.
 - [ ] Scan all **3 payment QRs** with their real apps (done — client verified; re-verify once after final printed set)
 - [ ] Copy-account button on each payment method (done)
 - [ ] Client signs off cafe menu content (items/prices/Amharic)
-- [ ] Restaurant real menu entered (client) — remove mock flag after
+- [x] Restaurant real menu entered (client) — mock flag removed, fallback synced
 - [ ] `/admin/payments` shows the 3 methods (confirms migration `0003` applied; if empty, run the `0003` SQL in Supabase once)
 - [ ] Admin login works on a **second device** (phone)
 - [ ] Test password reset end-to-end OR document the dashboard-reset fallback
@@ -294,7 +294,7 @@ Renewal note: domain ~$12/yr; Supabase Pro $25/mo only if ever chosen.
 
 1. **Domain:** keep `melala.netlify.app` (free) or buy `.com`/`.et` (~$12/yr)? → **Recommend: buy the domain**
 2. **Database:** stay on Supabase Free ($0) — only go Pro ($25/mo) if you want automated backups/reset emails hardened → **Recommend: Free**
-3. **Restaurant menu:** you enter the real 40 items via admin — when?
+3. **Restaurant menu:** client entered it via admin (Main Non-Fasting + Fasting Foods) — ask for a quick sign-off look
 4. **Content sign-off:** cafe menu final?
 5. **WhatsApp number correct?** (currently 251 911 609 157)
 6. **Social links** to add to the footer?

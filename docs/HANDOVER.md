@@ -61,10 +61,11 @@ Changes appear on `/payment` immediately after a refresh.
      their respective apps and confirm each routes to the right account.
    - Test the "copy account number" button on each method.
 2. **Content sign-off:** every item, price (ETB), description, and Amharic
-   name is correct *for the client*. The bundled fallback data in
-   `src/data/restaurantMenu.ts` still carries a "mock content" comment until
-   the real restaurant menu is confirmed — remove that comment only after
-   sign-off.
+   name is correct *for the client*. The restaurant menu in the DB is the
+   client's real data and `src/data/restaurantMenu.ts` has been synced to
+   mirror it (no more mock marker). Still open: cafe menu sign-off — and
+   re-sync the bundled fallback whenever the DB menu changes, so the
+   pre-DB instant render never flashes stale content.
 3. **Device QA matrix** (Android + iPhone, and both are covered):
 
    | Test                                   | Android | iPhone |
