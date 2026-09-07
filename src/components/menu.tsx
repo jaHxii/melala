@@ -76,7 +76,7 @@ function MenuItemRow({
 
   return (
     <li
-      className="focus-ring flex flex-col gap-2 rounded-xl px-4 py-3 transition-colors active:bg-secondary/50 sm:flex-row sm:items-baseline sm:gap-3"
+      className="focus-ring flex items-baseline gap-3 rounded-xl px-4 py-3 transition-colors active:bg-secondary/50"
       onClick={handleTap}
       role="button"
       tabIndex={0}
@@ -84,67 +84,63 @@ function MenuItemRow({
         if (e.key === "Enter" || e.key === " ") handleTap();
       }}
     >
-      <div className="min-w-0 break-words sm:flex-1">
+      <div className="min-w-0 flex-1 break-words">
         {secondaryName ? (
           <p className="font-ethiopic text-sm text-foreground/70">{secondaryName}</p>
         ) : null}
         <h3 className={`menu-item-name ${amFirst ? "font-ethiopic" : ""}`}>{primaryName}</h3>
         {desc ? <p className="menu-item-desc">{desc}</p> : null}
       </div>
-      <div className="flex items-center gap-3 sm:contents">
-        <span
-          aria-hidden="true"
-          className="min-w-6 flex-1 self-center border-b-2 border-dotted border-foreground/30"
-        />
-        <span
-          className={`menu-price-pill transition-all duration-300 ${tapped ? "scale-110" : ""}`}
-        >
-          {priceFormatter.format(item.price)}
-        </span>
-        {onAdd ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              try {
-                navigator.vibrate?.(10);
-              } catch {
-                /* vibrate not supported */
-              }
-              onAdd(item, category);
-            }}
-            aria-label={`${t("addItem")}: ${item.name}`}
-            className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-all active:scale-90"
-            style={
-              qty && qty > 0
-                ? { background: "var(--berbere)", borderColor: "var(--berbere)", color: "#fff" }
-                : {
-                    background: "transparent",
-                    borderColor: "var(--berbere)",
-                    color: "var(--berbere)",
-                  }
+      <span
+        aria-hidden="true"
+        className="hidden min-w-6 flex-1 self-center border-b-2 border-dotted border-foreground/30 sm:block"
+      />
+      <span className={`menu-price-pill transition-all duration-300 ${tapped ? "scale-110" : ""}`}>
+        {priceFormatter.format(item.price)}
+      </span>
+      {onAdd ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            try {
+              navigator.vibrate?.(10);
+            } catch {
+              /* vibrate not supported */
             }
-          >
-            {qty && qty > 0 ? (
-              qty
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            )}
-          </button>
-        ) : null}
-      </div>
+            onAdd(item, category);
+          }}
+          aria-label={`${t("addItem")}: ${item.name}`}
+          className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-all active:scale-90"
+          style={
+            qty && qty > 0
+              ? { background: "var(--berbere)", borderColor: "var(--berbere)", color: "#fff" }
+              : {
+                  background: "transparent",
+                  borderColor: "var(--berbere)",
+                  color: "var(--berbere)",
+                }
+          }
+        >
+          {qty && qty > 0 ? (
+            qty
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          )}{" "}
+        </button>
+      ) : null}
     </li>
   );
 }
