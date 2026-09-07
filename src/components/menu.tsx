@@ -42,8 +42,18 @@ export function SectionBadge({ label, local }: { label: string; local?: string |
 
 /* ── Menu Item Row (with tap-to-highlight) ──────────────────────── */
 
-function MenuItemRow({ item }: { item: MenuItemType }) {
-  const { locale } = useLanguage();
+function MenuItemRow({
+  item,
+  category,
+  onAdd,
+  qty,
+}: {
+  item: MenuItemType;
+  category: string;
+  onAdd?: (item: MenuItemType, category: string) => void;
+  qty?: number;
+}) {
+  const { t, locale } = useLanguage();
   const [tapped, setTapped] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -88,13 +98,66 @@ function MenuItemRow({ item }: { item: MenuItemType }) {
       <span className={`menu-price-pill transition-all duration-300 ${tapped ? "scale-110" : ""}`}>
         {priceFormatter.format(item.price)}
       </span>
+      {onAdd ? (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            try {
+              navigator.vibrate?.(10);
+            } catch {
+              /* vibrate not supported */
+            }
+            onAdd(item, category);
+          }}
+          aria-label={`${t("addItem")}: ${item.name}`}
+          className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-all active:scale-90"
+          style={
+            qty && qty > 0
+              ? { background: "var(--berbere)", borderColor: "var(--berbere)", color: "#fff" }
+              : {
+                  background: "transparent",
+                  borderColor: "var(--berbere)",
+                  color: "var(--berbere)",
+                }
+          }
+        >
+          {qty && qty > 0 ? (
+            qty
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          )}
+        </button>
+      ) : null}
     </li>
   );
 }
 
 /* ── Menu Section Card (no animation) ───────────────────────────── */
 
-function MenuSectionCard({ section, id }: { section: MenuSectionType; id?: string }) {
+function MenuSectionCard({
+  section,
+  id,
+  onAdd,
+  qtyById,
+}: {
+  section: MenuSectionType;
+  id?: string;
+  onAdd?: (item: MenuItemType, category: string) => void;
+  qtyById?: Record<string, number>;
+}) {
   return (
     <section
       id={id}
@@ -104,9 +167,18 @@ function MenuSectionCard({ section, id }: { section: MenuSectionType; id?: strin
         <SectionBadge label={section.category} local={section.local} />
       </div>
       <ul className="space-y-2" aria-label={`${section.category} menu items`}>
-        {section.items.map((item) => (
-          <MenuItemRow key={item.name} item={item} />
-        ))}
+        {section.items.map((item) => {
+          const id = `${section.category}::${item.name}`;
+          return (
+            <MenuItemRow
+              key={id}
+              item={item}
+              category={section.category}
+              onAdd={onAdd}
+              qty={qtyById?.[id]}
+            />
+          );
+        })}
       </ul>
     </section>
   );
@@ -355,9 +427,13 @@ function SectionDivider() {
 export function MenuGrid({
   sections,
   filter,
+  onAddItem,
+  cartQtyById,
 }: {
   sections: MenuSectionType[];
   filter?: string | null;
+  onAddItem?: (item: MenuItemType, category: string) => void;
+  cartQtyById?: Record<string, number>;
 }) {
   const filtered = (filter ? sections.filter((s) => s.category === filter) : sections).filter(
     (s) => s.items.length > 0,
@@ -371,6 +447,8 @@ export function MenuGrid({
           <MenuSectionCard
             section={section}
             id={`section-${section.category.toLowerCase().replace(/\s+/g, "-")}`}
+            onAdd={onAddItem}
+            qtyById={cartQtyById}
           />
         </div>
       ))}

@@ -8,6 +8,8 @@ import {
   BackToTopButton,
 } from "@/components/menu";
 import { DevCredit } from "@/components/DevCredit";
+import { OrderCart } from "@/components/OrderCart";
+import { useOrderCart } from "@/lib/order-cart";
 import { SITE_URL } from "@/lib/constants";
 import { useLanguage } from "@/lib/language";
 import { fetchMenuItems, toMenuSections, type MenuSection } from "@/lib/menu-db";
@@ -43,6 +45,7 @@ export const Route = createFileRoute("/cafe")({
 
 function CafeMenuPage() {
   const { t } = useLanguage();
+  const cart = useOrderCart("cafe");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [menuSections, setMenuSections] = useState<MenuSection[]>(cafeMenu);
   const [stale, setStale] = useState(false);
@@ -146,9 +149,15 @@ function CafeMenuPage() {
           activeCategory={activeCategory}
           onSelect={setActiveCategory}
         />
-        <MenuGrid sections={shownSections} filter={activeCategory} />
+        <MenuGrid
+          sections={shownSections}
+          filter={activeCategory}
+          onAddItem={cart.add}
+          cartQtyById={cart.qtyById}
+        />
         <BackToTopButton />
         <DevCredit />
+        <OrderCart cart={cart} />
         <StickyPayButton from="cafe" />
       </div>
     </div>
